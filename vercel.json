@@ -1,6 +1,5 @@
 {
   "cleanUrls": true,
-  "functions": { "api/ai.js": { "maxDuration": 30 } },
   "headers": [
     { "source": "/(.*)", "headers": [ { "key": "Permissions-Policy", "value": "microphone=(self)" } ] }
   ]

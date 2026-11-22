@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Papo English — converse em inglês com IA</title>
-<meta name="description" content="Pratique conversação em inglês por voz com IA: correção em português, pronúncia palavra por palavra, vocabulário e simulados. Grátis.">
+<title>Papo English — treine conversação em inglês</title>
+<meta name="description" content="Treine conversação em inglês por voz: diálogos de situações reais, simulados de prova, pronúncia palavra por palavra e vocabulário. Grátis.">
 <meta name="theme-color" content="#2B59E6">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -161,7 +161,6 @@ s.del{color:var(--bad)}
 .wscore{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0}
 .wscore span{border-radius:10px;padding:6px 10px;font-weight:700;font-size:15px;display:flex;flex-direction:column;align-items:center;line-height:1.1}
 .wscore span small{font-size:10.5px;font-weight:700;opacity:.8}
-.s-ok{background:var(--ok-soft);color:var(--ok)}.s-mid{background:var(--warn-soft);color:var(--warn)}.s-bad{background:var(--bad-soft);color:var(--bad)}
 .bigmic{width:84px;height:84px;border-radius:50%;font-size:34px;margin:6px auto;display:grid;place-items:center}
 .score-big{font-size:46px;font-weight:800;text-align:center;letter-spacing:-.03em}
 .seg{display:flex;background:#E9E4DA;border-radius:12px;padding:3px;gap:3px;margin-bottom:14px}
@@ -218,6 +217,15 @@ s.del{color:var(--bad)}
 ul.clean{list-style:none;display:flex;flex-direction:column;gap:8px}
 ul.clean li{display:flex;gap:10px;align-items:flex-start}
 ul.clean li::before{content:"✦";color:var(--accent);font-weight:800}
+.panel{background:#fff;border-top:1px solid var(--line);padding:12px 12px calc(12px + env(safe-area-inset-bottom));max-height:52vh;overflow-y:auto}
+.phint{font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.optc{display:block;width:100%;text-align:left;background:var(--brand-soft);border-radius:14px;padding:11px 13px;margin-bottom:8px;border:2px solid transparent}
+.optc:active{border-color:var(--brand)}
+.optc b{display:block;font-size:15px;color:var(--brand-2)}
+.optc small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.tgt{font-size:19px;font-weight:700;line-height:1.4;text-align:center;padding:8px 4px}
+.tgt span{border-radius:6px;padding:0 2px}
+.s-ok{background:var(--ok-soft);color:var(--ok)}.s-mid{background:var(--warn-soft);color:var(--warn)}.s-bad{background:var(--bad-soft);color:var(--bad)}
 #toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:92%;max-width:440px}
 #toast div{background:#17202F;color:#fff;border-radius:12px;padding:10px 14px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px #0003;animation:up .2s;text-align:center}
 .spin{width:38px;height:38px;border-radius:50%;border:4px solid var(--brand-soft);border-top-color:var(--brand);animation:sp 1s linear infinite;margin:30px auto 14px}
@@ -234,10 +242,10 @@ ul.clean li::before{content:"✦";color:var(--accent);font-weight:800}
 <script>
 "use strict";
 /* ============================================================
-   Papo English — tutor de conversação em inglês com IA
+   Papo English — treino de conversação em inglês (diálogos guiados, sem IA)
    DomDevLabs · domdevlabs@gmail.com
    ============================================================ */
-const VERSION = "1.1.2";
+const VERSION = "1.2.0";
 const SB_URL = "https://hcyvrzjncsfrraadjmvf.supabase.co", SB_KEY = "sb_publishable_DAQltYQi-54Pn3WoNm4Myw_IBMJpUcC";
 const sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
 let SESSION = null, LOADING = true, loadedFor = null;
@@ -280,67 +288,142 @@ const CHALLENGES = [
   ["shy", "😳", "Vergonha / medo de errar"]
 ];
 const EMPATHY = {
-  freeze: "Travar é normal: seu cérebro está traduzindo do português em tempo real. Falar todo dia, em frases curtas, cria o atalho direto.",
+  freeze: "Travar é normal: seu cérebro está traduzindo do português em tempo real. Repetir frases prontas em voz alta todo dia cria o atalho direto.",
   listen: "Entender fala rápida é treino de ouvido. Aqui você pode ouvir de novo, desacelerar e traduzir qualquer frase.",
   pron: "Você vai treinar frase por frase, com nota palavra a palavra e dicas focadas nos sons que mais pegam para brasileiros (TH, R, vogais longas).",
-  vocab: "Toda palavra nova que aparece nas conversas vai direto para o seu vocabulário, com revisão espaçada.",
-  grammar: "Cada frase que você falar é corrigida em segundo plano, com explicação curta em português. Sem interromper a conversa.",
+  vocab: "As expressões de cada diálogo vão direto para o seu vocabulário, com revisão espaçada.",
+  grammar: "Cada diálogo traz respostas prontas, com tradução, para você aprender as estruturas certas falando.",
   shy: "Aqui ninguém está olhando. Pode errar à vontade: é um ambiente sem pressão, no seu ritmo, a qualquer hora."
 };
 const INTERESTS = ["Tecnologia", "Negócios", "Esportes", "Viagens", "Filmes e séries", "Música", "Ciência", "Games", "Culinária", "Aviação", "Saúde e fitness", "Livros", "Política e atualidades", "Carreira militar"];
 
+/* Roteiros: cada turno = [fala da Lu (en), tradução, opções OU resposta-modelo (texto) OU nada (encerramento)] */
 const SCENARIOS = [
-  {id:"free", cat:"conversa", emoji:"💬", title:"Conversa livre", desc:"Papo sobre seus interesses", role:"Casual, friendly open conversation. Pick topics from the learner's interests and move naturally between them, sharing small opinions of your own."},
-  {id:"intro", cat:"dia", emoji:"👋", title:"Se apresentar", desc:"Conhecendo alguém numa festa", role:"You just met the learner at a friend's party in Chicago. Get to know them: name, work, hometown, hobbies, plans."},
-  {id:"coffee", cat:"dia", emoji:"☕", title:"Pedido no café", desc:"Barista apressado em Nova York", role:"You are a busy but friendly barista in New York. Take the learner's order, ask about size, milk, name for the cup, suggest a pastry, handle payment."},
-  {id:"restaurant", cat:"dia", emoji:"🍽️", title:"Restaurante", desc:"Pedir, perguntar, reclamar", role:"You are a waiter at a restaurant in London. Greet, explain specials, take the order, check on the food, handle a small problem with the dish, bring the bill."},
-  {id:"airport", cat:"dia", emoji:"🛂", title:"Imigração no aeroporto", desc:"Oficial da imigração dos EUA", role:"You are a US immigration officer at JFK airport. Ask the purpose of the trip, length of stay, accommodation, occupation, return ticket. Polite, formal, a bit serious."},
-  {id:"hotel", cat:"dia", emoji:"🏨", title:"Check-in no hotel", desc:"Recepção e problemas no quarto", role:"You are a hotel receptionist in Toronto. Do the check-in, explain breakfast and wifi, then handle a complaint the learner makes about the room."},
-  {id:"directions", cat:"dia", emoji:"🗺️", title:"Pedir informações", desc:"Perdido em Londres", role:"You are a friendly local in London. The learner is lost and asks for directions and tips about transport and places to visit."},
-  {id:"doctor", cat:"dia", emoji:"🩺", title:"Consulta médica", desc:"Descrever sintomas", role:"You are a doctor at a walk-in clinic. The learner is the patient. Ask about symptoms, duration, medication, allergies, then give simple advice."},
-  {id:"shopping", cat:"dia", emoji:"🛍️", title:"Compras e trocas", desc:"Loja de roupas", role:"You are a shop assistant in a clothing store. Help the learner find sizes and colors, then handle an exchange or refund request."},
-  {id:"interview", cat:"business", emoji:"🤝", title:"Entrevista de emprego", desc:"Perguntas comportamentais (STAR)", role:"You are a hiring manager at an international company interviewing the learner for a job in their field. Ask typical interview and behavioral questions one at a time (strengths, weaknesses, a challenge they solved, why this company). Ask follow-ups."},
-  {id:"meeting", cat:"business", emoji:"📊", title:"Reunião de equipe", desc:"Status, prazos e bloqueios", role:"You are the team lead in a weekly status meeting on a video call. Ask the learner for project updates, blockers and deadlines; gently push back and ask for clarification."},
-  {id:"presentation", cat:"business", emoji:"🎤", title:"Apresentar um projeto", desc:"Rodada de perguntas", role:"You are a stakeholder who just watched the learner present a project. Ask them to summarize it, then ask Q&A questions about costs, risks, timeline and results."},
-  {id:"negotiation", cat:"business", emoji:"💰", title:"Negociação com fornecedor", desc:"Preço, prazo e condições", role:"You are a sales representative of a supplier negotiating with the learner, who is a buyer (procurement). Discuss price, delivery time, warranty and payment terms; resist discounts at first."},
-  {id:"smalltalk", cat:"business", emoji:"🌐", title:"Small talk no trabalho", desc:"Antes da call começar", role:"You are a coworker from another country chatting with the learner a few minutes before a video meeting starts: weekend, weather, travel, work news."},
-  {id:"ielts", cat:"exam", exam:true, emoji:"🎓", title:"Simulado IELTS Speaking", desc:"Parts 1, 2 e 3", role:"You are an official-style IELTS Speaking examiner. Run Part 1 (four short questions on familiar topics), then Part 2 (give a cue card topic with 3 bullet points and tell the learner to speak for 1-2 minutes), then Part 3 (two or three abstract discussion questions linked to Part 2). Ask ONE question per turn and briefly announce each part. Neutral examiner tone, no feedback during the test."},
-  {id:"toefl", cat:"exam", exam:true, emoji:"📝", title:"Simulado TOEFL Speaking", desc:"Tarefas independentes e integradas", role:"You are running a TOEFL iBT Speaking style practice. Start with an independent task (state an opinion and give reasons). Then do integrated-style tasks: briefly describe a short campus situation or lecture point in 2-3 sentences and ask the learner to respond or summarize. One task per turn, neutral tone, no feedback during the test."},
-  {id:"tdie", cat:"exam", exam:true, emoji:"✈️", title:"Simulado oral estilo TDIE", desc:"Entrevista militar, meta B2", role:"You are an oral English interviewer for military personnel of the Brazilian Air Force (target CEFR B2). Ask about the learner's job and unit routine, past experiences (missions, training, trips), opinions on aviation, defense and current topics, and one hypothetical situation. Gradually increase complexity. One question per turn, formal and polite tone, no feedback during the interview."}
+  {id:"intro", cat:"dia", emoji:"👋", title:"Se apresentar", desc:"Conhecendo alguém numa festa", vocab:[["for a living","para ganhar a vida"],["free time","tempo livre"],["grab a coffee","tomar um café"],["how long","quanto tempo"]], turns:[
+    ["Hi! I'm Lu, a friend of Sarah's. What's your name?","Oi! Sou a Lu, amiga da Sarah. Qual é o seu nome?",[["Hi Lu, I'm {name}. Nice to meet you!","Oi Lu, sou {name}. Prazer!"],["Hello! My name is {name}. How do you know Sarah?","Olá! Meu nome é {name}. Como você conhece a Sarah?"]]],
+    ["Nice to meet you too! So, where are you from?","Prazer também! Então, de onde você é?",[["I'm from Brazil, from Rio de Janeiro.","Sou do Brasil, do Rio de Janeiro."],["I was born in Brazil, but I live in Brasília now.","Nasci no Brasil, mas agora moro em Brasília."]]],
+    ["Oh, cool! And what do you do for a living?","Que legal! E você trabalha com o quê?",[["I work in an office. I'm an analyst.","Trabalho num escritório. Sou analista."],["I'm a teacher. I teach physics to teenagers.","Sou professor. Ensino física para adolescentes."]]],
+    ["That sounds interesting! What do you like to do in your free time?","Parece interessante! O que você gosta de fazer no tempo livre?",[["I love watching series and going to the beach.","Adoro ver séries e ir à praia."],["I usually go to the gym and play video games.","Costumo ir à academia e jogar videogame."]]],
+    ["Same here! How long are you staying in town?","Eu também! Quanto tempo você vai ficar na cidade?",[["Just for a week. I'm here on vacation.","Só uma semana. Estou de férias."],["About a month. I'm here for work.","Cerca de um mês. Estou a trabalho."]]],
+    ["It was great talking to you, {name}! Let's grab a coffee sometime.","Foi ótimo conversar com você! Vamos tomar um café qualquer dia."]]},
+  {id:"coffee", cat:"dia", emoji:"☕", title:"Pedido no café", desc:"Barista apressado em Nova York", vocab:[["to go","para viagem"],["for here","para consumir no local"],["keep the change","fique com o troco"],["counter","balcão"]], turns:[
+    ["Hi there! What can I get for you today?","Olá! O que vai ser hoje?",[["Can I get a medium latte, please?","Pode me ver um latte médio, por favor?"],["I'd like a small black coffee, please.","Eu queria um café preto pequeno, por favor."]]],
+    ["Sure! Is that for here or to go?","Claro! É para tomar aqui ou para viagem?",[["To go, please.","Para viagem, por favor."],["For here, thanks.","Para tomar aqui, obrigado."]]],
+    ["Can I get a name for the cup?","Qual nome coloco no copo?",[["It's {name}.","É {name}."],["Sure, it's {name}. Let me spell it for you.","Claro, é {name}. Vou soletrar para você."]]],
+    ["Would you like anything to eat? Our blueberry muffins are fresh.","Quer algo para comer? Nossos muffins de mirtilo estão fresquinhos.",[["Yes, I'll have a muffin too, please.","Sim, vou querer um muffin também, por favor."],["No, thanks. Just the coffee.","Não, obrigado. Só o café."]]],
+    ["Okay, that'll be six fifty. Cash or card?","Certo, deu seis e cinquenta. Dinheiro ou cartão?",[["Card, please. Can I pay with my phone?","Cartão, por favor. Posso pagar com o celular?"],["Here's ten dollars. Keep the change.","Aqui estão dez dólares. Pode ficar com o troco."]]],
+    ["Perfect! Your order will be ready at the end of the counter. Have a great day!","Perfeito! Seu pedido fica pronto no fim do balcão. Tenha um ótimo dia!"]]},
+  {id:"restaurant", cat:"dia", emoji:"🍽️", title:"Restaurante", desc:"Pedir, perguntar, reclamar", vocab:[["reservation","reserva"],["the check","a conta"],["to share","para dividir"],["heat it up","esquentar"]], turns:[
+    ["Good evening! Do you have a reservation?","Boa noite! Vocês têm reserva?",[["Yes, a table for two under {name}.","Sim, uma mesa para dois em nome de {name}."],["No, we don't. Do you have a table for two?","Não. Vocês têm mesa para dois?"]]],
+    ["Right this way. Can I get you something to drink?","Por aqui. Posso trazer algo para beber?",[["Could we see the wine list, please?","Podemos ver a carta de vinhos, por favor?"],["Just water for now, please.","Só água por enquanto, por favor."]]],
+    ["Are you ready to order, or do you need a few more minutes?","Já querem pedir ou precisam de mais alguns minutos?",[["I'll have the grilled salmon with salad.","Vou querer o salmão grelhado com salada."],["What do you recommend?","O que você recomenda?"]]],
+    ["Great choice. How is everything so far?","Ótima escolha. Está tudo certo até agora?",[["Everything is delicious, thank you.","Está tudo delicioso, obrigado."],["Actually, my steak is a bit cold. Could you heat it up?","Na verdade, meu bife está meio frio. Pode esquentar?"]]],
+    ["Can I get you any dessert or coffee?","Querem sobremesa ou café?",[["No, thanks. Could we have the check, please?","Não, obrigado. Pode trazer a conta, por favor?"],["Yes, a chocolate cake to share, please.","Sim, um bolo de chocolate para dividir, por favor."]]],
+    ["Thank you for dining with us. Have a lovely evening!","Obrigada por jantar conosco. Tenham uma ótima noite!"]]},
+  {id:"airport", cat:"dia", emoji:"🛂", title:"Imigração no aeroporto", desc:"Oficial da imigração dos EUA", vocab:[["purpose","propósito, motivo"],["return ticket","passagem de volta"],["staying","hospedado"],["business conference","conferência de negócios"]], turns:[
+    ["Good afternoon. Passport, please. What's the purpose of your visit?","Boa tarde. Passaporte, por favor. Qual o motivo da sua visita?",[["I'm here on vacation.","Estou aqui de férias."],["I'm here for a business conference.","Estou aqui para uma conferência de negócios."]]],
+    ["How long are you planning to stay?","Quanto tempo pretende ficar?",[["Ten days. I'm going back on the twentieth.","Dez dias. Volto no dia vinte."],["Two weeks.","Duas semanas."]]],
+    ["Where will you be staying?","Onde vai se hospedar?",[["At a hotel in Manhattan. Here's the reservation.","Num hotel em Manhattan. Aqui está a reserva."],["At my cousin's house in New Jersey.","Na casa do meu primo em Nova Jersey."]]],
+    ["What do you do in Brazil?","O que você faz no Brasil?",[["I work for the Brazilian Air Force.","Trabalho na Força Aérea Brasileira."],["I'm a teacher.","Sou professor."]]],
+    ["Do you have a return ticket?","Você tem passagem de volta?",[["Yes, here it is.","Sim, aqui está."],["Yes, I have it on my phone.","Sim, está no meu celular."]]],
+    ["Everything looks fine. Welcome to the United States. Enjoy your stay.","Tudo certo. Bem-vindo aos Estados Unidos. Aproveite a estadia."]]},
+  {id:"hotel", cat:"dia", emoji:"🏨", title:"Check-in no hotel", desc:"Recepção e problemas no quarto", vocab:[["key card","cartão-chave"],["front desk","recepção"],["late checkout","saída mais tarde"],["right away","imediatamente"]], turns:[
+    ["Welcome to the Maple Hotel! Checking in?","Bem-vindo ao Maple Hotel! Check-in?",[["Yes, I have a reservation under {name}.","Sim, tenho uma reserva em nome de {name}."],["Yes. Is my room ready? I'm a little early.","Sim. Meu quarto está pronto? Cheguei um pouco cedo."]]],
+    ["Here's your key card. Room five twelve, fifth floor. Breakfast is from six to ten.","Aqui está seu cartão. Quarto 512, quinto andar. Café da manhã das seis às dez.",[["Great. What's the wifi password?","Ótimo. Qual é a senha do wifi?"],["Is breakfast included in the price?","O café da manhã está incluso no preço?"]]],
+    ["Later, on the phone: Front desk, how can I help you?","Mais tarde, por telefone: Recepção, posso ajudar?",[["Hi, the air conditioning in my room isn't working.","Oi, o ar-condicionado do meu quarto não está funcionando."],["Hi, could you send me some extra towels, please?","Oi, pode me mandar toalhas extras, por favor?"]]],
+    ["I'm so sorry about that. I'll send someone right away. Anything else?","Sinto muito. Vou mandar alguém agora mesmo. Mais alguma coisa?",[["Could I get a late checkout tomorrow?","Posso fazer o checkout mais tarde amanhã?"],["No, that's all. Thank you.","Não, é só isso. Obrigado."]]],
+    ["You're welcome. Enjoy your stay!","De nada. Aproveite a estadia!"]]},
+  {id:"directions", cat:"dia", emoji:"🗺️", title:"Pedir informações", desc:"Perdido em Londres", vocab:[["straight ahead","sempre em frente"],["traffic lights","semáforo"],["block","quarteirão"],["a ten-minute walk","dez minutos a pé"]], turns:[
+    ["You look a bit lost. Can I help you?","Você parece meio perdido. Posso ajudar?",[["Yes, please! How do I get to the British Museum?","Sim, por favor! Como chego ao Museu Britânico?"],["Excuse me, is there a subway station near here?","Com licença, tem estação de metrô aqui perto?"]]],
+    ["Sure. Go straight ahead for two blocks, then turn left at the traffic lights.","Claro. Siga em frente por dois quarteirões e vire à esquerda no semáforo.",[["Two blocks and then left. Is it far from here?","Duas quadras e depois à esquerda. É longe daqui?"],["Sorry, could you say that again more slowly?","Desculpe, pode repetir mais devagar?"]]],
+    ["It's about a ten-minute walk. Or you can take the bus number twenty-four.","Uns dez minutos a pé. Ou você pode pegar o ônibus 24.",[["I think I'll walk. It's a nice day.","Acho que vou a pé. O dia está bonito."],["Where can I buy a bus ticket?","Onde compro passagem de ônibus?"]]],
+    ["Is this your first time in London?","É sua primeira vez em Londres?",[["Yes, it is! Any tips on what to visit?","Sim! Alguma dica do que visitar?"],["No, I came here five years ago.","Não, vim aqui há cinco anos."]]],
+    ["Don't miss Covent Garden and a walk along the river. Enjoy London!","Não deixe de ver Covent Garden e caminhar pela beira do rio. Aproveite Londres!"]]},
+  {id:"doctor", cat:"dia", emoji:"🩺", title:"Consulta médica", desc:"Descrever sintomas", vocab:[["headache","dor de cabeça"],["sore throat","dor de garganta"],["painkiller","analgésico"],["prescription","receita médica"]], turns:[
+    ["Hello, I'm Doctor Miller. What brings you in today?","Olá, sou a doutora Miller. O que te traz aqui hoje?",[["I've had a bad headache for three days.","Estou com uma dor de cabeça forte há três dias."],["I have a sore throat and a fever.","Estou com dor de garganta e febre."]]],
+    ["I see. Are you taking any medication right now?","Entendo. Está tomando algum remédio agora?",[["Just some painkillers, but they didn't help much.","Só uns analgésicos, mas não ajudaram muito."],["No, I'm not taking anything.","Não, não estou tomando nada."]]],
+    ["Do you have any allergies?","Você tem alguma alergia?",[["Yes, I'm allergic to penicillin.","Sim, sou alérgico a penicilina."],["No, I don't have any allergies.","Não, não tenho alergias."]]],
+    ["Okay. Get some rest, drink plenty of water, and come back if it gets worse.","Certo. Descanse, beba bastante água e volte se piorar.",[["How long should I rest?","Quanto tempo devo descansar?"],["Do I need a prescription?","Preciso de receita?"]]],
+    ["A couple of days should be enough. Take care and feel better soon!","Uns dois dias devem bastar. Se cuide e melhoras!"]]},
+  {id:"shopping", cat:"dia", emoji:"🛍️", title:"Compras e trocas", desc:"Loja de roupas", vocab:[["try on","provar"],["fitting room","provador"],["tight","apertado"],["receipt","recibo, nota"],["exchange","trocar"]], turns:[
+    ["Hi! Are you looking for anything in particular?","Oi! Procurando algo específico?",[["Yes, I'm looking for a jacket for winter.","Sim, procuro uma jaqueta de inverno."],["I'm just looking, thanks.","Só estou olhando, obrigado."]]],
+    ["This one is very popular. What size are you?","Esta aqui faz muito sucesso. Qual é o seu tamanho?",[["I'm a medium. Do you have it in black?","Uso M. Tem em preto?"],["I'm not sure. Can I try it on?","Não tenho certeza. Posso provar?"]]],
+    ["The fitting rooms are over there. How does it fit?","Os provadores ficam ali. Como ficou?",[["It's a little tight. Do you have a bigger size?","Está um pouco apertada. Tem um tamanho maior?"],["It fits perfectly. I'll take it.","Serviu perfeitamente. Vou levar."]]],
+    ["The next day: Hi again! How can I help you?","No dia seguinte: Oi de novo! Posso ajudar?",[["I'd like to return this jacket. Here's the receipt.","Queria devolver esta jaqueta. Aqui está o recibo."],["Can I exchange this for a different color?","Posso trocar por outra cor?"]]],
+    ["No problem at all. I'll take care of that for you right now.","Sem problema nenhum. Resolvo isso para você agora mesmo."]]},
+  {id:"interview", cat:"business", emoji:"🤝", title:"Entrevista de emprego", desc:"Perguntas comportamentais", vocab:[["strength","ponto forte"],["weakness","ponto fraco"],["meet deadlines","cumprir prazos"],["delegate","delegar"],["background","formação, experiência"]], turns:[
+    ["Thanks for coming in, {name}. Could you tell me a little about yourself?","Obrigada por vir. Pode me falar um pouco sobre você?",[["Sure. I have five years of experience in administration and I love solving problems.","Claro. Tenho cinco anos de experiência em administração e adoro resolver problemas."],["Of course. I'm a hard-working professional with a background in education.","Claro. Sou um profissional dedicado com formação em educação."]]],
+    ["What would you say is your greatest strength?","Qual você diria que é seu maior ponto forte?",[["I'm very organized, and I always meet my deadlines.","Sou muito organizado e sempre cumpro meus prazos."],["I'm a good communicator and I work well in teams.","Me comunico bem e trabalho bem em equipe."]]],
+    ["And your biggest weakness?","E seu maior ponto fraco?",[["Sometimes I take on too many tasks, but I'm learning to delegate.","Às vezes assumo tarefas demais, mas estou aprendendo a delegar."],["My English could be better, so I practice every day.","Meu inglês poderia ser melhor, por isso pratico todo dia."]]],
+    ["Tell me about a challenge you faced at work and how you solved it.","Conte um desafio que você enfrentou no trabalho e como resolveu.","Last year we had a tight deadline for a big purchase. I organized the team, split the tasks, and we delivered two days early."],
+    ["Why do you want to work for our company?","Por que você quer trabalhar na nossa empresa?",[["Because I admire your values and I want to grow with you.","Porque admiro os valores de vocês e quero crescer junto."],["Because this role is a perfect match for my skills.","Porque esta vaga combina perfeitamente com minhas habilidades."]]],
+    ["Great answers. We'll be in touch by the end of the week. Thank you!","Ótimas respostas. Entraremos em contato até o fim da semana. Obrigada!"]]},
+  {id:"meeting", cat:"business", emoji:"📊", title:"Reunião de equipe", desc:"Status, prazos e impedimentos", vocab:[["on track","dentro do previsto"],["behind schedule","atrasado"],["blocker","impedimento"],["get back to you","dar um retorno"],["speed up","acelerar"]], turns:[
+    ["Okay, let's get started. {name}, can you give us a quick update on your project?","Certo, vamos começar. Pode dar uma atualização rápida do seu projeto?",[["Sure. We're on track and about seventy percent done.","Claro. Estamos dentro do previsto, com uns setenta por cento feitos."],["Sure. We're a little behind schedule, but we're catching up.","Claro. Estamos um pouco atrasados, mas recuperando."]]],
+    ["Are there any blockers we should know about?","Tem algum impedimento que a gente precise saber?",[["Yes, we're still waiting for approval from the finance team.","Sim, ainda esperamos a aprovação do financeiro."],["Not at the moment. Everything is under control.","No momento não. Está tudo sob controle."]]],
+    ["When do you think you can deliver the final version?","Quando acha que consegue entregar a versão final?",[["By the end of next week, if everything goes well.","Até o fim da semana que vem, se tudo correr bem."],["I need two more weeks to finish the tests.","Preciso de mais duas semanas para terminar os testes."]]],
+    ["Hmm, that's later than we planned. Can we speed things up?","Hum, é mais tarde do que planejamos. Dá para acelerar?",[["We could, but we'd need one more person on the team.","Poderíamos, mas precisaríamos de mais uma pessoa na equipe."],["I'll check with the team and get back to you today.","Vou ver com a equipe e te dou um retorno hoje."]]],
+    ["Sounds good. Please send me a summary by email after the meeting. Thanks, everyone!","Combinado. Me mande um resumo por e-mail depois da reunião. Obrigada a todos!"]]},
+  {id:"presentation", cat:"business", emoji:"🎤", title:"Apresentar um projeto", desc:"Rodada de perguntas", vocab:[["budget","orçamento"],["main goal","objetivo principal"],["move forward","seguir em frente"],["resist the change","resistir à mudança"]], turns:[
+    ["Thanks for the presentation. Could you summarize the main goal of the project?","Obrigada pela apresentação. Pode resumir o objetivo principal do projeto?","The main goal is to reduce our purchasing time by thirty percent using a new online system."],
+    ["How much will it cost?","Quanto vai custar?",[["The total budget is about fifty thousand dollars.","O orçamento total é de cerca de cinquenta mil dólares."],["The cost is low because we're using existing tools.","O custo é baixo porque usamos ferramentas que já temos."]]],
+    ["What are the main risks?","Quais são os principais riscos?",[["The main risk is a delay in getting data from other departments.","O principal risco é atraso nos dados de outros setores."],["People may resist the change, so training is essential.","As pessoas podem resistir à mudança, então o treinamento é essencial."]]],
+    ["When will we see results?","Quando veremos resultados?","We expect the first results in three months, and the full impact by the end of the year."],
+    ["Very clear. Thank you, I think we can move forward with this.","Muito claro. Obrigada, acho que podemos seguir com isso."]]},
+  {id:"negotiation", cat:"business", emoji:"💰", title:"Negociação com fornecedor", desc:"Preço, prazo e pagamento", vocab:[["quote","cotação, orçamento"],["supplier","fornecedor"],["match a price","igualar um preço"],["payment terms","condições de pagamento"],["deal","negócio fechado"]], turns:[
+    ["Thanks for your interest in our products. How can I help you?","Obrigado pelo interesse nos nossos produtos. Como posso ajudar?",[["We need five hundred units. What's your best price?","Precisamos de quinhentas unidades. Qual é o seu melhor preço?"],["We're comparing suppliers and would like a quote.","Estamos comparando fornecedores e gostaríamos de uma cotação."]]],
+    ["Our price is twenty dollars per unit.","Nosso preço é vinte dólares por unidade.",[["That's a bit high. Can you offer a discount for a large order?","Está um pouco alto. Pode dar desconto num pedido grande?"],["Another supplier offered us eighteen. Can you match that?","Outro fornecedor ofereceu dezoito. Consegue igualar?"]]],
+    ["I could go down to nineteen if you sign a one-year contract.","Posso baixar para dezenove se vocês assinarem um contrato de um ano.",[["That works for us if delivery is within thirty days.","Para nós funciona se a entrega for em até trinta dias."],["We'd prefer a six-month contract to start.","Preferimos um contrato de seis meses para começar."]]],
+    ["Deal. And what about payment terms?","Fechado. E as condições de pagamento?",[["We usually pay thirty days after delivery.","Costumamos pagar trinta dias após a entrega."],["Can we pay half now and half on delivery?","Podemos pagar metade agora e metade na entrega?"]]],
+    ["Perfect. I'll send you the proposal in writing this afternoon.","Perfeito. Mando a proposta por escrito hoje à tarde."]]},
+  {id:"smalltalk", cat:"business", emoji:"🌐", title:"Small talk no trabalho", desc:"Antes da call começar", vocab:[["pretty quiet","bem tranquilo"],["miss the game","perder o jogo"],["join the call","entrar na chamada"],["perfect timing","na hora certa"]], turns:[
+    ["Hey {name}! How was your weekend?","E aí! Como foi seu fim de semana?",[["It was great! I went to the beach with my family.","Foi ótimo! Fui à praia com minha família."],["Pretty quiet. I just stayed home and rested.","Bem tranquilo. Fiquei em casa descansando."]]],
+    ["Nice! The weather here has been terrible. How is it over there?","Que bom! O tempo aqui está horrível. Como está aí?",[["It's really hot here. Summer is coming.","Está muito calor aqui. O verão está chegando."],["It's been raining all week.","Choveu a semana toda."]]],
+    ["Did you watch the game last night?","Você viu o jogo ontem à noite?",[["No, I missed it. Who won?","Não, perdi. Quem ganhou?"],["Yes! What a game! I couldn't believe the ending.","Sim! Que jogo! Não acreditei no final."]]],
+    ["Oh, looks like everyone's joining the call now.","Opa, parece que todo mundo está entrando na chamada.",[["Great, let's get started then.","Ótimo, vamos começar então."],["Perfect timing. Talk to you later!","Na hora certa. Falamos depois!"]]],
+    ["Alright, see you after the meeting!","Beleza, até depois da reunião!"]]},
+  {id:"ielts", cat:"exam", exam:true, emoji:"🎓", title:"Simulado IELTS Speaking", desc:"Partes 1, 2 e 3 com resposta-modelo", vocab:[["hometown","cidade natal"],["lifestyle","estilo de vida"],["accessible","acessível"],["in my opinion","na minha opinião"],["disciplined","disciplinado"]], turns:[
+    ["Good morning. This is Part One. Let's talk about your hometown. Where are you from?","Bom dia. Esta é a Parte 1. Vamos falar da sua cidade natal. De onde você é?","I'm from Rio de Janeiro, a big coastal city in Brazil famous for its beaches and mountains."],
+    ["What do you like most about living there?","O que você mais gosta de morar lá?","What I like most is the lifestyle. People are friendly and there's always something to do outdoors."],
+    ["Now, Part Two. Describe a skill you would like to learn. Say what it is, why you want to learn it, and how you would learn it. You can speak for one to two minutes.","Parte 2. Descreva uma habilidade que gostaria de aprender: qual, por quê e como. Fale de 1 a 2 minutos.","I'd love to learn to play the guitar. I've always enjoyed music, and I think it would help me relax after work. I'd probably take online lessons and practice for twenty minutes every day."],
+    ["Part Three. Do you think it's easier for adults or children to learn new skills? Why?","Parte 3. Você acha mais fácil adultos ou crianças aprenderem coisas novas? Por quê?","In my opinion, children learn faster because they are less afraid of making mistakes. However, adults are usually more disciplined and know why they are learning."],
+    ["How has technology changed the way people learn?","Como a tecnologia mudou a forma de as pessoas aprenderem?","Technology has made learning much more accessible. Today anyone with a phone can take courses, watch tutorials and practice languages for free."],
+    ["Thank you. That is the end of the speaking test.","Obrigada. Este é o fim do teste oral."]]},
+  {id:"toefl", cat:"exam", exam:true, emoji:"📝", title:"Simulado TOEFL Speaking", desc:"Tarefas com resposta-modelo", vocab:[["commuting","deslocamento casa-trabalho"],["flexibility","flexibilidade"],["blend into","se misturar com"],["predator","predador"]], turns:[
+    ["Task one. Some people prefer to work from home, while others prefer to work in an office. Which do you prefer and why?","Tarefa 1. Uns preferem trabalhar em casa, outros no escritório. Qual você prefere e por quê?","I prefer working from home because I save time on commuting and I can focus better. Also, I have more flexibility to organize my day."],
+    ["Task two. The university plans to close the library at eight p.m. instead of midnight to save money. What is your opinion about this change?","Tarefa 2. A universidade quer fechar a biblioteca às 20h em vez de meia-noite para economizar. Qual sua opinião?","I disagree with this change. Many students work during the day and can only study at night, so closing early would hurt them."],
+    ["Task three. In biology, camouflage helps animals avoid predators. Using an example, explain how camouflage works.","Tarefa 3. Em biologia, a camuflagem ajuda animais a fugir de predadores. Explique com um exemplo.","Camouflage allows animals to blend into their environment. For example, a chameleon changes its color to match the leaves, so predators can't see it."],
+    ["Thank you. This concludes the speaking section.","Obrigada. Isso encerra a seção oral."]]},
+  {id:"tdie", cat:"exam", exam:true, emoji:"✈️", title:"Simulado oral estilo TDIE", desc:"Entrevista militar, meta B2", vocab:[["rank","posto, graduação"],["briefing","reunião de instrução"],["supplies","suprimentos"],["delegation","comitiva"],["teamwork","trabalho em equipe"]], turns:[
+    ["Good morning. Please state your rank and tell me about your current job.","Bom dia. Diga sua graduação e fale sobre sua função atual.","Good morning. I'm a sergeant in the Brazilian Air Force. I work in the procurement section, where I manage purchases and contracts for my unit."],
+    ["Describe your daily routine at the unit.","Descreva sua rotina diária na unidade.","I usually arrive at seven a.m., check my emails and attend a short briefing. Then I analyze processes, talk to suppliers and prepare reports."],
+    ["Tell me about a training or mission that was important for you.","Fale de um treinamento ou missão importante para você.","Last year I took part in a logistics exercise. We had to deliver supplies to a remote base in forty-eight hours, and teamwork was essential."],
+    ["In your opinion, why is English important for military personnel?","Na sua opinião, por que o inglês é importante para militares?","English is essential because it's the common language in international operations, aviation and training. It allows us to cooperate with other forces."],
+    ["Imagine you are responsible for receiving a foreign delegation. What would you do?","Imagine que você é responsável por receber uma comitiva estrangeira. O que faria?","First, I would prepare a schedule and check the logistics. Then I would welcome them, introduce our unit and make sure they had everything they needed."],
+    ["Thank you. That concludes the interview.","Obrigado. Isso encerra a entrevista."]]}
 ];
 const CATS = {conversa:"Conversa", dia:"Dia a dia", business:"Business English", exam:"Simulados de prova"};
 
+/* Pergunta do dia: [pergunta, tradução, resposta-modelo] */
 const DAILY_Q = [
-  "What's something you learned recently that surprised you?",
-  "If you could live in any city in the world for a year, where would you go and why?",
-  "What does a perfect weekend look like for you?",
-  "What's the best piece of advice you've ever received?",
-  "Tell me about a skill you'd love to master.",
-  "What's a movie or series you'd recommend, and why?",
-  "How has technology changed the way you work?",
-  "Describe a person who has influenced you a lot.",
-  "What would you do with an extra hour every day?",
-  "What's a tradition from your city or family that you enjoy?",
-  "What's the most interesting place you've ever visited?",
-  "Do you prefer working alone or in a team? Why?",
-  "What's a goal you want to achieve this year?",
-  "If you could have dinner with anyone, who would it be?",
-  "What's a common mistake people make when learning languages?",
-  "How do you usually deal with stress?",
-  "What's your favorite food, and could you explain how to make it?",
-  "What job would you choose if money didn't matter?",
-  "Tell me about a challenge you overcame.",
-  "What's something you'd like to change in your city?",
-  "What makes a good leader, in your opinion?",
-  "Describe your typical morning routine.",
-  "What's the best gift you've ever given or received?",
-  "Should kids learn to code at school? Why or why not?",
-  "What hobby would you like to start?",
-  "How do you imagine your life in ten years?",
-  "What's a small thing that makes you happy?",
-  "Is it better to travel alone or with friends?",
-  "What's an app you can't live without?",
-  "Tell me about the last time you laughed a lot."
+  ["What does a perfect weekend look like for you?","Como é um fim de semana perfeito para você?","A perfect weekend for me is sleeping late, having lunch with my family and watching a good movie at night."],
+  ["If you could live in any city in the world for a year, where would you go?","Se pudesse morar em qualquer cidade do mundo por um ano, onde seria?","I would go to Lisbon because the food is amazing, people speak Portuguese and it's close to the rest of Europe."],
+  ["What's the best piece of advice you've ever received?","Qual o melhor conselho que você já recebeu?","The best advice I've ever received was to focus on what I can control and not worry about the rest."],
+  ["Tell me about a skill you'd love to master.","Fale de uma habilidade que você adoraria dominar.","I'd love to master public speaking, because it would help me in my career and give me more confidence."],
+  ["What's a movie or series you'd recommend, and why?","Que filme ou série você recomendaria, e por quê?","I'd recommend a series called Ted Lasso. It's funny, positive and shows how kindness can change a team."],
+  ["How has technology changed the way you work?","Como a tecnologia mudou o seu trabalho?","Technology has made my work much faster. Today I can automate repetitive tasks and spend more time on decisions."],
+  ["Describe a person who has influenced you a lot.","Descreva uma pessoa que te influenciou muito.","My father influenced me a lot. He taught me to work hard, to be honest and to never give up."],
+  ["What would you do with an extra hour every day?","O que você faria com uma hora a mais por dia?","With an extra hour every day, I would exercise more and spend more time studying English."],
+  ["What's the most interesting place you've ever visited?","Qual o lugar mais interessante que você já visitou?","The most interesting place I've ever visited was Foz do Iguaçu. The waterfalls are huge and the sound is incredible."],
+  ["Do you prefer working alone or in a team? Why?","Você prefere trabalhar sozinho ou em equipe? Por quê?","I prefer working in a team, because we share ideas and solve problems faster. But I also need some time alone to focus."],
+  ["What's a goal you want to achieve this year?","Qual meta você quer alcançar este ano?","This year I want to reach a B2 level in English and pass my language test at work."],
+  ["How do you usually deal with stress?","Como você costuma lidar com o estresse?","When I'm stressed, I go for a walk, listen to music and try to organize my tasks in a list."],
+  ["What job would you choose if money didn't matter?","Que profissão você escolheria se dinheiro não importasse?","If money didn't matter, I would be a travel photographer, because I love meeting new people and places."],
+  ["Describe your typical morning routine.","Descreva sua rotina típica de manhã.","I usually wake up at six, make coffee, check the news and then get ready for work."],
+  ["What's an app you can't live without?","Qual app você não vive sem?","I can't live without my calendar app. It helps me remember meetings, deadlines and even birthdays."],
+  ["What makes a good leader, in your opinion?","Na sua opinião, o que faz um bom líder?","A good leader listens to the team, gives clear goals and sets an example with their own attitude."],
+  ["Is it better to travel alone or with friends?","É melhor viajar sozinho ou com amigos?","I think it's better to travel with friends because you share the costs and the memories, but traveling alone helps you grow."],
+  ["What's a small thing that makes you happy?","Que pequena coisa te deixa feliz?","A small thing that makes me happy is a good cup of coffee on a quiet Sunday morning."]
 ];
 
 const PRON_LEVEL = {
@@ -418,27 +501,10 @@ async function flushDb() {
   if (dbAgain) { dbAgain = false; flushDb(); }
 }
 
-/* ---------- capacidades: login, IA (servidor), microfone e voz do navegador ---------- */
+/* ---------- capacidades: login, microfone e voz do navegador ---------- */
 const CAP = {sample: null, tts: null, dict: null, ref: null, synced: false, ready: false, speaking: false};
 const DICT = {target: null, base: "", partial: "", listening: false, was: false};
 function withTimeout(p, ms) { return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej({code: "timeout"}), ms))]); }
-
-/* IA: chama /api/ai (Vercel AI Gateway), só para usuário logado */
-async function aiCall(input, o) {
-  o = o || {};
-  const messages = typeof input === "string" ? [{role: "user", content: input}] : input;
-  const {data} = await sb.auth.getSession();
-  const session = data && data.session;
-  if (!session) throw {code: "no_session"};
-  let r;
-  try {
-    r = await fetch("/api/ai", {method: "POST", headers: {"Content-Type": "application/json", Authorization: "Bearer " + session.access_token},
-      body: JSON.stringify({messages, json: !!o.json, task: o.task || (o.modelTier === "default" ? "summary" : "chat")})});
-  } catch (e) { throw {code: "offline"}; }
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw {code: j.code || (r.status === 429 ? "rate_limited" : "error"), message: j.error || ""};
-  return {text: j.text || ""};
-}
 
 /* Microfone: Web Speech API (Chrome Android/PC, Safari iPhone/Mac, Edge) */
 function makeDictation() {
@@ -491,8 +557,8 @@ function initCaps() {
 /* Login (Supabase Auth — mesmo projeto, dados independentes em papo_*) */
 async function setSession(session) {
   SESSION = session || null;
-  if (!SESSION) { CAP.sample = null; CAP.ref = null; CAP.ready = true; LOADING = false; loadedFor = null; view = "login"; render(); return; }
-  CAP.sample = aiCall; CAP.ref = true; CAP.ready = true;
+  if (!SESSION) { CAP.ref = null; CAP.ready = true; LOADING = false; loadedFor = null; view = "login"; render(); return; }
+  CAP.ref = true; CAP.ready = true;
   if (loadedFor === SESSION.user.id) return;
   loadedFor = SESSION.user.id;
   LOADING = true; render();
@@ -551,7 +617,7 @@ function micToggle(target) {
   if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} return; }
   stopSpeak();
   DICT.target = target;
-  const inp = target === "chat" ? $("#chatInput") : target === "place" ? $("#placeAns") : null;
+  const inp = target === "free" ? $("#freeInput") : null;
   DICT.base = inp ? inp.value.trim() : "";
   DICT.partial = "";
   if (target === "pron") { PR.heard = ""; const h = $("#pronHeard"); if (h) h.textContent = "Ouvindo…"; }
@@ -565,8 +631,8 @@ function micToggle(target) {
 }
 function applyDict() {
   const t = (DICT.base + " " + DICT.partial).trim();
-  if (DICT.target === "chat") { const el = $("#chatInput"); if (el) { el.value = t; autoGrow(el); } }
-  else if (DICT.target === "place") { const el = $("#placeAns"); if (el) el.value = t; }
+  if (DICT.target === "chat" || DICT.target === "place") { const el = $("#heardLive"); if (el) el.textContent = t || "Ouvindo…"; }
+  else if (DICT.target === "free") { const el = $("#freeInput"); if (el) el.value = t; }
   else if (DICT.target === "pron") { const el = $("#pronHeard"); if (el) el.textContent = t || "Ouvindo…"; }
 }
 function updateMicUI() {
@@ -577,45 +643,43 @@ function updateMicUI() {
   const hint = $("#micHint"); if (hint) hint.textContent = DICT.listening ? "Ouvindo… toque de novo para parar" : "";
 }
 function onDictEnd() {
-  if (DICT.target === "chat" && view === "chat") { const el = $("#chatInput"); if (el && el.value.trim()) sendChat(); }
+  if (DICT.target === "chat" && view === "chat") chatHeard((DICT.base + " " + DICT.partial).trim());
+  else if (DICT.target === "place" && (view === "onb" || view === "placement")) A.placeHeard((DICT.base + " " + DICT.partial).trim());
   else if (DICT.target === "pron" && view === "pron") { evaluatePron((DICT.base + " " + DICT.partial).trim()); }
 }
 
-/* ---------- IA ---------- */
-function aiErr(e) {
-  const c = e && e.code;
-  if (c === "rate_limited") return "Muitas mensagens seguidas. Espere alguns segundos e tente de novo.";
-  if (c === "no_ai" || c === "no_session") return "Entre na sua conta para conversar com a IA.";
-  if (c === "ai_setup") return "A IA do app ainda não foi ativada pelo administrador. Tente de novo mais tarde.";
-  if (c === "daily_limit") return "Você atingiu o limite diário de mensagens da IA. Volte amanhã!";
-  if (c === "offline") return "Sem conexão com a internet. Tente de novo.";
-  return "Não consegui responder agora. Toque para tentar de novo.";
+/* ---------- dicas de pronúncia por regras (sons que mais pegam para brasileiros) ---------- */
+const TIPS = [
+  {id: "th", label: "TH", re: /th/, tip: "Ponha a ponta da língua entre os dentes e solte o ar: /θ/ em think (sem voz) e /ð/ em this (com voz). Não troque por F, T ou D."},
+  {id: "ed", label: "-ED", re: /[a-z]{2,}ed$/, tip: "No passado, o -ed quase nunca vira sílaba: worked = /wɝkt/, liked = /laɪkt/. Só vira /ɪd/ depois de T ou D: wanted, needed."},
+  {id: "sc", label: "S inicial", re: /^s[ptkclmnw]/, tip: "Não coloque um 'e' antes do S: school, not 'escool'; Spain, not 'Espain'. Comece direto no sibilado."},
+  {id: "r", label: "R", re: /^r|[^aeiou]r[aeiou]|^wr/, tip: "O R inglês não vibra nem raspa a garganta: curve a ponta da língua para trás, sem encostar no céu da boca (right, very, really)."},
+  {id: "h", label: "H", re: /^h/, tip: "O H no começo é só um sopro, como um 'rr' bem leve de 'carro': house, hot, how. Não deixe mudo nem forte demais."},
+  {id: "w", label: "W", re: /^w|qu/, tip: "W começa com os lábios arredondados, como um 'u' rápido: world, work, would. Não troque por V."},
+  {id: "v", label: "V", re: /v/, tip: "V é com os dentes de cima tocando o lábio de baixo, vibrando: very, have, travel."},
+  {id: "ee", label: "Vogal longa", re: /ee|ea|ie/, tip: "'ee/ea' é um 'i' longo e esticado (sheep, team), diferente do 'i' curto e relaxado (ship, sit)."},
+  {id: "l", label: "L final", re: /l$|ll$/, tip: "O L no fim da palavra não vira 'u': a língua toca atrás dos dentes de cima (well, school, people)."},
+  {id: "end", label: "Final", re: /[bdgkpt]$/, tip: "Não acrescente 'i' no fim: big, não 'bigui'; book, não 'buki'. Feche a consoante e pare."},
+  {id: "ng", label: "-ING", re: /ing$/, tip: "No -ing, o som final é nasal, com a parte de trás da língua no céu da boca: working, não 'workin' nem 'workingui'."}
+];
+const TIP_LABEL = {th: "TH", ed: "-ED", sc: "S inicial", r: "R", h: "H", w: "W", v: "V", ee: "Vogal longa", l: "L final", end: "Final de palavra", ng: "-ING", grammar: "Gramática", vocabulary: "Vocabulário", naturalness: "Naturalidade"};
+function tipFor(word) { const w = String(word).toLowerCase().replace(/[^a-z']/g, ""); if (w.length < 2) return null; return TIPS.find(t => t.re.test(w)) || null; }
+function ruleTips(words) {
+  const out = [], seen = new Set();
+  (words || []).forEach(w => { const t = tipFor(w); if (t && !seen.has(t.id)) { seen.add(t.id); out.push({word: String(w).replace(/[^A-Za-z'’-]/g, ""), ipa: t.label, tip: t.tip}); } });
+  if (!out.length && (words || []).length) out.push({word: "Ritmo", ipa: "Entonação", tip: "Leia a frase devagar primeiro, depois na velocidade normal. Dê mais força às palavras importantes (nomes, verbos) e junte as pequenas (to, of, a)."});
+  return out.slice(0, 4);
 }
-function parseJSON(t) {
-  t = String(t || "").replace(/```json/gi, "").replace(/```/g, "");
-  const a = t.indexOf("{"), b = t.lastIndexOf("}");
-  if (a < 0 || b < a) throw {code: "bad_json"};
-  return JSON.parse(t.slice(a, b + 1));
+function countWeak(words) {
+  (words || []).forEach(w => { if (w.sc < 70) { const t = tipFor(w.w); if (t) S.errStats[t.id] = (S.errStats[t.id] || 0) + 1; } });
 }
-async function askJSON(prompt, tier) {
-  if (!CAP.sample) throw {code: "no_ai"};
-  const opts = {modelTier: tier || "quick", cache: false};
-  if (typeof CAP.sample.json === "function") {
-    try { const v = await CAP.sample.json(prompt, opts); if (v && typeof v === "object") return v; }
-    catch (e) { const c = e && e.code; if (c === "not_granted" || c === "rate_limited") throw e; }
-  }
-  const r = await CAP.sample(prompt + "\n\nRespond with valid JSON only, no code fences, no extra text.", Object.assign({json: true}, opts));
-  return parseJSON(r && r.text);
-}
-async function askText(prompt, tier) {
-  if (!CAP.sample) throw {code: "no_ai"};
-  const r = await CAP.sample(prompt, {modelTier: tier || "quick", cache: false});
-  return String((r && r.text) || "").trim();
-}
-function learnerCtx() {
-  const p = S.profile;
-  const goal = (GOALS.find(g => g[0] === p.goal) || GOALS[3])[2];
-  return `Learner: ${p.name || "the learner"}, Brazilian, CEFR level ${p.level}. Goal: ${goal}. Interests: ${(p.interests || []).join(", ") || "general topics"}.`;
+const STOP = new Set("that this with have from they would there their about which because what when were been also just like very much more some into then than them will your make made being does doing only even such really".split(" "));
+const keyWords = t => Array.from(new Set(String(t).toLowerCase().replace(/[^a-z'\s]/g, " ").split(/\s+/).filter(w => w.length >= 4 && !STOP.has(w))));
+function coverage(model, answer) {
+  const k = keyWords(model); if (!k.length) return 0;
+  const a = String(answer).toLowerCase();
+  const hit = k.filter(w => a.includes(w.slice(0, Math.max(4, w.length - 2)))).length;
+  return Math.round(hit / k.length * 100);
 }
 
 /* ---------- gamificação / tempo ---------- */
@@ -695,7 +759,6 @@ function render() {
   else if (RECOVERY) view = "newpass";
   else if (!SESSION) view = "login";
   else if (!S.onboarded && view !== "onb") view = "onb";
-  const pa = $("#placeAns"); if (pa && OB && OB.place) OB.place.ans[OB.place.i] = pa.value;
   const scr = $("#screen");
   const fn = VIEWS[view] || VIEWS.home;
   scr.className = ["chat"].includes(view) ? "full" : "";
@@ -704,7 +767,7 @@ function render() {
   const tabs = $("#tabs");
   tabs.style.display = isTab ? "flex" : "none";
   tabs.innerHTML = TABS.map(t => `<button class="${view === t[0] ? "on" : ""}" onclick="A.go('${t[0]}')"><span class="ic">${t[1]}</span>${t[2]}</button>`).join("");
-  if (view === "chat") { renderMsgs(); const el = $("#chatInput"); if (el) { el.addEventListener("input", () => autoGrow(el)); el.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); A.send(); } }); } }
+  if (view === "chat") { renderMsgs(); updatePanel(); }
   updateMicUI();
 }
 
@@ -712,7 +775,7 @@ function render() {
    LOGIN
    ============================================================ */
 VIEWS.loading = () => `<div class="center" style="padding-top:120px"><div style="width:84px;height:84px;margin:0 auto">${LOGO}</div><div class="spin"></div><p class="muted small">Carregando…</p></div>`;
-VIEWS.login = () => `<div class="hero" style="padding-top:24px"><div class="logo">${LOGO}</div><h1>Papo English</h1><p class="muted mt8">Converse em inglês com IA, por voz. Correção em português, pronúncia palavra por palavra e simulados. <b>Grátis.</b></p></div>
+VIEWS.login = () => `<div class="hero" style="padding-top:24px"><div class="logo">${LOGO}</div><h1>Papo English</h1><p class="muted mt8">Diálogos em inglês por voz: situações reais, simulados de prova e nota de pronúncia palavra por palavra. <b>Grátis.</b></p></div>
   <div class="card mt16">
     <button class="btn block ghost" style="background:#fff" onclick="A.google()"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Entrar com Google</button>
     <div class="row-flex mt12 mb12"><div style="flex:1;height:1px;background:var(--line)"></div><span class="small muted">ou com e-mail</span><div style="flex:1;height:1px;background:var(--line)"></div></div>
@@ -729,11 +792,6 @@ VIEWS.newpass = () => `<div class="hero"><div class="logo">${LOGO}</div><h1>Nova
 /* ============================================================
    ONBOARDING
    ============================================================ */
-const PLACE_Q = [
-  "Hi! Tell me a little about yourself: who are you and what do you do?",
-  "What did you do last weekend? Tell me some details.",
-  "If you could change one thing about your city, what would it be and why?"
-];
 let OB = {step: 0, d: {name: "", goal: "", level: "", challenges: [], interests: [], dailyMin: 10, remind: "19:00"}, place: {i: 0, ans: [], busy: false, result: null}};
 const OB_TOTAL = 10;
 function obFrame(inner, foot) {
@@ -742,18 +800,18 @@ function obFrame(inner, foot) {
 }
 VIEWS.onb = () => {
   const d = OB.d, s = OB.step;
-  if (s === 0) return obFrame(`<div class="hero"><div class="logo">${LOGO}</div><h1>Papo English</h1><p class="muted mt8">Seu parceiro de conversa em inglês, 24 horas por dia. Fale, erre sem medo e receba correção na hora.</p>
+  if (s === 0) return obFrame(`<div class="hero"><div class="logo">${LOGO}</div><h1>Papo English</h1><p class="muted mt8">Seu treino de conversação em inglês, a qualquer hora. Fale, erre sem medo e veja na hora o que melhorar.</p>
     <div class="list mt16" style="text-align:left">
-      <div class="item"><span class="em">🎙️</span><div class="body"><b>Converse por voz</b><span>Situações reais: entrevista, reunião, viagem, provas</span></div></div>
-      <div class="item"><span class="em">✏️</span><div class="body"><b>Correção em português</b><span>Gramática, jeito nativo de dizer e explicação curta</span></div></div>
+      <div class="item"><span class="em">🎙️</span><div class="body"><b>Diálogos por voz</b><span>Situações reais: entrevista, reunião, viagem, provas</span></div></div>
+      <div class="item"><span class="em">✏️</span><div class="body"><b>Respostas prontas para treinar</b><span>Escolha o que dizer, com tradução e áudio</span></div></div>
       <div class="item"><span class="em">🎯</span><div class="body"><b>Pronúncia palavra a palavra</b><span>Nota por palavra e dicas para brasileiros</span></div></div>
     </div></div>`, `<button class="btn block orange" onclick="A.obNext()">Começar</button>`);
   if (s === 1) return obFrame(`<h1>Como posso te chamar?</h1><p class="muted mt8 mb12">Vou usar seu nome nas conversas.</p><input id="obName" class="field" placeholder="Seu nome" value="${esc(d.name)}" oninput="OB.d.name=this.value">`, `<button class="btn block" onclick="A.obNext()">Continuar</button>`);
   if (s === 2) return obFrame(`<h1>Por que você quer falar inglês?</h1><p class="muted mt8 mb12">Assim eu escolho as melhores situações para você.</p>${GOALS.map(g => `<button class="opt ${d.goal === g[0] ? "on" : ""}" onclick="A.obSet('goal','${g[0]}')"><span class="em">${g[1]}</span>${esc(g[2])}</button>`).join("")}`, `<button class="btn block" ${d.goal ? "" : "disabled"} onclick="A.obNext()">Continuar</button>`);
-  if (s === 3) return obFrame(`<h1>Qual é o seu nível hoje?</h1><p class="muted mt8 mb12">Chute mesmo. Daqui a pouco a gente confirma ouvindo você.</p>${LEVELS.map(l => `<button class="opt ${d.level === l[0] ? "on" : ""}" onclick="A.obSet('level','${l[0]}')"><span class="tag">${l[0]}</span><div>${esc(l[1])}<small>${esc(l[2])}</small></div></button>`).join("")}`, `<button class="btn block" ${d.level ? "" : "disabled"} onclick="A.obNext()">Continuar</button>`);
+  if (s === 3) return obFrame(`<h1>Qual é o seu nível hoje?</h1><p class="muted mt8 mb12">Chute mesmo. Daqui a pouco a gente confirma com um teste de leitura.</p>${LEVELS.map(l => `<button class="opt ${d.level === l[0] ? "on" : ""}" onclick="A.obSet('level','${l[0]}')"><span class="tag">${l[0]}</span><div>${esc(l[1])}<small>${esc(l[2])}</small></div></button>`).join("")}`, `<button class="btn block" ${d.level ? "" : "disabled"} onclick="A.obNext()">Continuar</button>`);
   if (s === 4) return obFrame(`<h1>O que mais te atrapalha?</h1><p class="muted mt8 mb12">Pode marcar mais de um.</p>${CHALLENGES.map(c => `<button class="opt ${d.challenges.includes(c[0]) ? "on" : ""}" onclick="A.obToggle('challenges','${c[0]}')"><span class="em">${c[1]}</span>${esc(c[2])}</button>`).join("")}`, `<button class="btn block" ${d.challenges.length ? "" : "disabled"} onclick="A.obNext()">Continuar</button>`);
   if (s === 5) return obFrame(`<h1>Você não está sozinho 💙</h1><p class="muted mt8 mb12">A maioria dos brasileiros que estudam inglês sente exatamente isso. Veja como vamos atacar cada ponto:</p><div class="list">${d.challenges.map(k => { const c = CHALLENGES.find(x => x[0] === k); return `<div class="card"><h3>${c[1]} ${esc(c[2])}</h3><p class="small muted mt8">${esc(EMPATHY[k])}</p></div>`; }).join("")}</div>`, `<button class="btn block" onclick="A.obNext()">Entendi, vamos lá</button>`);
-  if (s === 6) return obFrame(`<h1>Sobre o que você gosta de conversar?</h1><p class="muted mt8 mb12">Escolha pelo menos 2 temas.</p><div class="chips">${INTERESTS.map(i => `<button class="opt ${d.interests.includes(i) ? "on" : ""}" onclick="A.obToggle('interests',${JSON.stringify(i).replace(/"/g, "&quot;")})">${esc(i)}</button>`).join("")}</div>`, `<button class="btn block" ${d.interests.length >= 2 ? "" : "disabled"} onclick="A.obNext()">Continuar</button>`);
+  if (s === 6) return obFrame(`<h1>Quais temas você curte?</h1><p class="muted mt8 mb12">Escolha pelo menos 2 temas.</p><div class="chips">${INTERESTS.map(i => `<button class="opt ${d.interests.includes(i) ? "on" : ""}" onclick="A.obToggle('interests',${JSON.stringify(i).replace(/"/g, "&quot;")})">${esc(i)}</button>`).join("")}</div>`, `<button class="btn block" ${d.interests.length >= 2 ? "" : "disabled"} onclick="A.obNext()">Continuar</button>`);
   if (s === 7) return obPlacement();
   if (s === 8) {
     const opts = [5, 10, 15, 20, 30];
@@ -771,37 +829,41 @@ VIEWS.onb = () => {
     ${OB.place.result ? `<div class="card mt16" style="text-align:left"><h3>Resultado do nivelamento: <span class="tag orange">${esc(OB.place.result.level)}</span></h3><p class="small muted mt8">${esc(OB.place.result.reason_pt || "")}</p></div>` : ""}
     <p class="muted mt16">Sua primeira conversa já está te esperando.</p></div>`, `<button class="btn block orange" onclick="A.obFinish()">Ir para o app</button>`);
 };
+/* Nivelamento por leitura em voz alta (sem IA): 3 frases de dificuldade crescente */
+const PLACE_Q = [
+  ["I like to watch movies with my friends on the weekend.", "A2"],
+  ["I've been studying English because I want to get a better job.", "B1"],
+  ["If I had known about the meeting earlier, I would have prepared a presentation.", "B2"]
+];
+function placementLevel(sc, self) {
+  let lv = sc[2] >= 80 ? "B2" : sc[1] >= 80 ? "B1" : sc[0] >= 70 ? "A2" : "A1";
+  if (self === "C1" && sc[2] >= 90) lv = "C1";
+  return lv;
+}
 function obPlacement() {
   const P = OB.place;
-  if (!CAP.sample && CAP.ready) return obFrame(`<h1>Teste de nivelamento</h1><div class="banner warn mt12">A IA não está disponível agora, então vou usar o nível que você escolheu (${esc(OB.d.level)}). Dá para refazer o teste depois no Perfil.</div>`, `<button class="btn block" onclick="A.obNext()">Continuar</button>`);
-  if (P.result) return obFrame(`<h1>Seu nível estimado</h1><div class="card mt16 center"><div style="font-size:48px;font-weight:800;color:var(--brand)">${esc(P.result.level)}</div><p class="muted">${esc((LEVELS.find(l => l[0] === P.result.level) || ["", ""])[1])}</p><p class="small mt12" style="text-align:left">${esc(P.result.reason_pt || "")}</p>
-    ${(P.result.strengths || []).length ? `<p class="small mt12" style="text-align:left"><b>Pontos fortes:</b> ${esc(P.result.strengths.join("; "))}</p>` : ""}
-    ${(P.result.focus || []).length ? `<p class="small mt8" style="text-align:left"><b>Focar em:</b> ${esc(P.result.focus.join("; "))}</p>` : ""}</div>`,
+  if (!CAP.dict) return obFrame(`<h1>Teste de nivelamento</h1><div class="banner warn mt12">Este navegador não reconhece voz, então vou usar o nível que você escolheu (${esc(OB.d.level || "B1")}). Para fazer o teste, abra no Chrome (Android/PC) ou no Safari (iPhone) e refaça pelo Perfil.</div>`, `<button class="btn block" onclick="A.obNext()">Continuar</button>`);
+  if (P.result) return obFrame(`<h1>Seu nível estimado</h1><div class="card mt16 center"><div style="font-size:48px;font-weight:800;color:var(--brand)">${esc(P.result.level)}</div><p class="muted">${esc((LEVELS.find(l => l[0] === P.result.level) || ["", ""])[1])}</p><p class="small mt12" style="text-align:left">${esc(P.result.reason_pt || "")}</p></div>`,
     `<button class="btn block" onclick="A.obNext()">Usar ${esc(P.result.level)} e continuar</button>`);
-  if (P.busy) return obFrame(`<div class="center"><div class="spin"></div><h3>Analisando suas respostas…</h3><p class="muted small mt8">Vocabulário, gramática e fluência.</p></div>`, "");
-  const q = PLACE_Q[P.i];
-  return obFrame(`<span class="tag orange">Nivelamento · ${P.i + 1}/3</span><h1 class="mt8">Vamos ouvir você</h1><p class="muted mt8 mb12">Responda em inglês, falando ou digitando. Do jeito que sair, sem pressão.</p>
-    <div class="card mb12"><p style="font-size:17px;font-weight:600">${esc(q)}</p>${canSpeak() ? `<button class="btn sec sm mt8" onclick="A.sayText(${JSON.stringify(q).replace(/"/g, "&quot;")})">🔊 Ouvir</button>` : ""}</div>
-    <textarea id="placeAns" class="field" placeholder="Sua resposta em inglês…">${esc(P.ans[P.i] || "")}</textarea>
-    <div class="row-flex mt8">${CAP.dict ? `<button class="iconbtn mic" data-mic="place" data-lbl="1" onclick="A.mic('place')">🎤</button><span id="micHint" class="small muted"></span>` : `<span class="small muted">Microfone: use o Chrome (Android/PC) ou o Safari (iPhone).</span>`}</div>`,
-    `<button class="btn ghost" onclick="A.obSkipPlace()">Pular</button><button class="btn block" onclick="A.obPlaceNext()">${P.i < 2 ? "Próxima" : "Ver meu nível"}</button>`);
+  const q = PLACE_Q[P.i][0], r = P.ans[P.i];
+  return obFrame(`<span class="tag orange">Nivelamento · ${P.i + 1}/3</span><h1 class="mt8">Leia em voz alta</h1><p class="muted mt8 mb12">Ouça se quiser, toque no microfone e leia a frase. As frases ficam mais difíceis a cada etapa.</p>
+    <div class="card mb12"><div class="tgt">${r ? r.words.map(w => `<span class="s-${scoreCls(w.sc)}">${esc(w.w)}</span>`).join(" ") : esc(q)}</div>
+    <div class="row-flex mt8" style="justify-content:center;gap:14px"><button class="iconbtn" style="background:var(--brand-soft)" onclick="A.sayText(${JSON.stringify(q).replace(/"/g, "&quot;")})">🔊</button><button class="bigmic mic" data-mic="place" data-lbl="1" onclick="A.mic('place')">🎤</button></div>
+    <p class="small center" id="heardLive" style="min-height:18px;color:var(--brand-2)">${r ? "Nota: " + r.overall : ""}</p></div>`,
+    `<button class="btn ghost" onclick="A.obSkipPlace()">Pular</button><button class="btn block" ${r ? "" : "disabled"} onclick="A.obPlaceNext()">${P.i < 2 ? "Próxima" : "Ver meu nível"}</button>`);
 }
 
 /* ============================================================
    HOME
    ============================================================ */
 function lessonOfDay() {
-  const pool = SCENARIOS.filter(s => !s.exam && s.id !== "free");
+  const pool = SCENARIOS.filter(s => !s.exam);
   const goalPref = {work: "business", exam: "exam", travel: "dia", conversation: "dia", study: "dia"}[S.profile.goal];
   const pref = SCENARIOS.filter(s => s.cat === goalPref);
   const n = dayOfYear();
   return (n % 3 === 0 || !pref.length) ? pool[n % pool.length] : pref[n % pref.length];
 }
-function aiBanner() {
-  if (!CAP.ready) return `<div class="banner info">Conectando a IA…</div>`;
-  if (!CAP.sample) return `<div class="banner warn">Entre na sua conta para conversar com a IA.</div>`;
-  return "";
-}
+function aiBanner() { return ""; }
 VIEWS.home = () => {
   const p = S.profile, sec = todaySec(), goal = p.dailyMin * 60, pct = clamp(Math.round(sec / goal * 100), 0, 100);
   const left = Math.max(0, Math.ceil((goal - sec) / 60));
@@ -819,10 +881,10 @@ VIEWS.home = () => {
   <h2>Lição do dia</h2>
   <div class="lesson"><span class="big">${L.emoji}</span><span class="tag" style="background:#ffffff26;color:#fff">${esc(CATS[L.cat])}</span><h1 style="font-size:21px;margin-top:8px">${esc(L.title)}</h1><p>${esc(L.desc)}</p><button class="btn" onclick="A.start('${L.id}')">Começar conversa</button></div>
   <h2>Pergunta do dia</h2>
-  <button class="item" onclick="A.start('daily')"><span class="em">❓</span><div class="body"><b>${esc(q)}</b><span>Responda falando · 1 a 3 min</span></div><span class="chev">›</span></button>
+  <button class="item" onclick="A.start('daily')"><span class="em">❓</span><div class="body"><b>${esc(q[0])}</b><span>${esc(q[1])} · responda e compare com a resposta-modelo</span></div><span class="chev">›</span></button>
   <h2>Atalhos</h2>
   <div class="grid2">
-    <button class="tile" onclick="A.start('free')"><span class="em">💬</span><b>Conversa livre</b><span>Sobre seus temas favoritos</span></button>
+    <button class="tile" onclick="A.start('smalltalk')"><span class="em">💬</span><b>Small talk</b><span>Papo rápido do dia a dia</span></button>
     <button class="tile" onclick="A.pronOpen()"><span class="em">🎯</span><b>Pronúncia</b><span>Nota palavra por palavra</span></button>
     <button class="tile" onclick="A.reviewOpen()"><span class="em">🧠</span><b>Revisar palavras</b><span>${due ? due + " para revisar hoje" : "Nada pendente hoje"}</span></button>
     <button class="tile" onclick="A.go('practice')"><span class="em">🎓</span><b>Simulados</b><span>IELTS, TOEFL, TDIE</span></button>
@@ -835,13 +897,13 @@ VIEWS.home = () => {
    ============================================================ */
 VIEWS.practice = () => {
   const block = cat => SCENARIOS.filter(s => s.cat === cat).map(s => `<button class="item" onclick="A.start('${s.id}')"><span class="em">${s.emoji}</span><div class="body"><b>${esc(s.title)}</b><span>${esc(s.desc)}</span></div><span class="chev">›</span></button>`).join("");
-  return `${aiBanner()}<h1>Praticar</h1><p class="muted mt8">Escolha uma situação. A IA entra no papel e você conversa.</p>
+  return `${aiBanner()}<h1>Praticar</h1><p class="muted mt8">Escolha uma situação. A Lu entra no papel e você responde em voz alta.</p>
   <h2>Zona de prática</h2>
   <div class="grid2">
     <button class="tile" onclick="A.pronOpen()"><span class="em">🎯</span><b>Pronúncia</b><span>Frases por nível e sons difíceis</span></button>
     <button class="tile" onclick="A.reviewOpen()"><span class="em">🧠</span><b>Flashcards</b><span>${dueVocab().length} para hoje</span></button>
     <button class="tile" onclick="A.start('daily')"><span class="em">❓</span><b>Pergunta do dia</b><span>Resposta falada</span></button>
-    <button class="tile" onclick="A.start('free')"><span class="em">💬</span><b>Conversa livre</b><span>Tempo ilimitado</span></button>
+    <button class="tile" onclick="A.start('intro')"><span class="em">👋</span><b>Se apresentar</b><span>Primeiro diálogo</span></button>
   </div>
   <h2>${CATS.exam}</h2><div class="list">${block("exam")}</div>
   <h2>${CATS.business}</h2><div class="list">${block("business")}</div>
@@ -849,226 +911,173 @@ VIEWS.practice = () => {
 };
 
 /* ============================================================
-   CONVERSA
+   CONVERSA (diálogos guiados, sem IA)
    ============================================================ */
 let CH = null;
+const fillName = t => String(t || "").replace(/\{name\}/g, S.profile.name || "friend");
 function getScenario(id) {
-  if (id === "daily") { const q = DAILY_Q[dayOfYear() % DAILY_Q.length]; return {id: "daily", cat: "conversa", emoji: "❓", title: "Pergunta do dia", desc: q, role: `Daily speaking question. Your FIRST line must ask exactly this question: "${q}". Then have a natural follow-up conversation about the learner's answer, asking for details and reasons.`}; }
+  if (id === "daily") {
+    const d = DAILY_Q[dayOfYear() % DAILY_Q.length];
+    return {id: "daily", cat: "conversa", emoji: "❓", title: "Pergunta do dia", desc: d[0], vocab: [], turns: [[d[0], d[1], d[2]], ["Thanks for sharing! See you tomorrow for another question.", "Obrigada por compartilhar! Até amanhã com outra pergunta."]]};
+  }
   return SCENARIOS.find(s => s.id === id) || SCENARIOS[0];
-}
-function tutorPrompt(sc) {
-  return `You are "Lu", a warm English conversation partner inside a speaking-practice app for Brazilians.
-SCENARIO: ${sc.role}
-${learnerCtx()}
-RULES:
-- Speak ONLY English. Your text will be read aloud, so: no emojis, no markdown, no lists, no stage directions.
-- Keep each turn SHORT: 1 to 3 sentences, with vocabulary and grammar suited to level ${S.profile.level}.
-- Always end with a question or prompt so the learner keeps talking (unless the scenario has clearly ended; then say goodbye warmly).
-- Do NOT correct the learner's mistakes and do not mention them: another system does that. Just keep the conversation natural.
-- If the learner writes in Portuguese, reply in simple English and encourage them to try saying it in English.
-- If the learner seems stuck, rephrase your question more simply.
-- Stay in character for the whole conversation.`;
-}
-function buildMsgs() {
-  const arr = [{role: "user", content: tutorPrompt(CH.sc) + "\n\n[Start now: say your opening line in character. Greet the learner by name if it fits.]"}];
-  CH.msgs.forEach(m => {
-    if (m.err || m.streaming || !m.text) return;
-    const role = m.role === "ai" ? "assistant" : "user";
-    const last = arr[arr.length - 1];
-    if (last.role === role) last.content += "\n" + m.text; else arr.push({role, content: m.text});
-  });
-  if (arr[arr.length - 1].role !== "user") arr.push({role: "user", content: "(continue)"});
-  return arr;
 }
 function startChat(id) {
   stopSpeak();
   const sc = getScenario(id);
-  CH = {id: uid(), sc, msgs: [], start: Date.now(), busy: false, pt: false, assist: ""};
+  CH = {id: uid(), sc, i: -1, msgs: [], start: Date.now(), stage: "wait", sel: null, last: null};
   go("chat");
-  aiTurn();
+  nextTurn();
 }
+function nextTurn() {
+  if (!CH) return;
+  CH.i++;
+  const t = CH.sc.turns[CH.i];
+  if (!t) { CH.stage = "done"; updatePanel(); return; }
+  const m = {id: uid(), role: "ai", text: fillName(t[0]), pt: fillName(t[1]), showPt: false};
+  CH.msgs.push(m);
+  CH.sel = null; CH.last = null;
+  if (Array.isArray(t[2])) CH.stage = "choose";
+  else if (typeof t[2] === "string") { CH.stage = "free"; CH.model = fillName(t[2]); }
+  else CH.stage = "done";
+  renderMsgs(); updatePanel();
+  if (S.profile.autoplay) speak(m.text);
+}
+function curOpts() { const t = CH && CH.sc.turns[CH.i]; return t && Array.isArray(t[2]) ? t[2].map(o => [fillName(o[0]), fillName(o[1])]) : []; }
 VIEWS.chat = () => {
   if (!CH) { view = "home"; return VIEWS.home(); }
+  const total = CH.sc.turns.length - 1;
   return `<div class="chat">
-    <div class="chathead"><button class="iconbtn" onclick="A.leaveChat()">✕</button><div class="t"><b>${CH.sc.emoji} ${esc(CH.sc.title)}</b><small id="chatTimer">${fmtTime(Math.floor((Date.now() - CH.start) / 1000))}</small></div>
+    <div class="chathead"><button class="iconbtn" onclick="A.leaveChat()">✕</button><div class="t"><b>${CH.sc.emoji} ${esc(CH.sc.title)}</b><small><span id="chatTimer">${fmtTime(Math.floor((Date.now() - CH.start) / 1000))}</span> · etapa <span id="chatStep">${Math.min(CH.i + 1, total)}</span>/${total}</small></div>
       <button class="iconbtn" title="Áudio automático" onclick="A.toggleAuto()">${S.profile.autoplay ? "🔊" : "🔇"}</button>
       <button class="btn sm orange" onclick="A.endChat()">Encerrar</button></div>
     <div id="msgs" class="msgs"></div>
-    <div id="assist" class="assist">${CH.assist || ""}</div>
-    <div class="composer">
-      <button class="iconbtn" title="Me ajuda" onclick="A.hint()">💡</button>
-      <button class="iconbtn ptbtn ${CH.pt ? "on" : ""}" title="Escrever em português" onclick="A.togglePT()">PT</button>
-      <textarea id="chatInput" rows="1" placeholder="${CH.pt ? "Escreva em português e eu traduzo…" : (CAP.dict ? "Fale ou digite em inglês…" : "Digite em inglês…")}"></textarea>
-      ${CAP.dict && !CH.pt ? `<button class="iconbtn mic" data-mic="chat" data-lbl="1" onclick="A.mic('chat')">🎤</button>` : ""}
-      <button class="iconbtn send" onclick="A.send()">${CH.pt ? "🌐" : "➤"}</button>
-    </div></div>`;
+    <div id="panel" class="panel"></div></div>`;
 };
+function scoreCls(s) { return s >= 85 ? "ok" : s >= 55 ? "mid" : "bad"; }
 function msgHTML(m) {
   if (m.role === "ai") {
-    const txt = m.streaming && (!m.text || /^thinking/i.test(m.text)) ? `<span class="dots"><i></i><i></i><i></i></span>` : esc(m.text);
-    const tools = (!m.streaming && !m.err) ? `<div class="tools"><button onclick="A.say('${m.id}')">🔊 Ouvir</button><button onclick="A.say('${m.id}',0.75)">🐢 Devagar</button><button onclick="A.tr('${m.id}')">🇧🇷 ${m.pt ? "Ocultar" : "Traduzir"}</button><button onclick="A.pronFrom('${m.id}')">🎯 Praticar</button></div>` : "";
-    return `<div class="mrow" id="m_${m.id}"><div class="av">Lu</div><div class="bub ${m.err ? "err" : "ai"}" ${m.err ? `onclick="A.retry()"` : ""}>${txt}${m.pt && m.pt !== "…" ? `<div class="pt">${esc(m.pt)}</div>` : m.pt === "…" ? `<div class="pt">traduzindo…</div>` : ""}${tools}</div></div>`;
+    return `<div class="mrow" id="m_${m.id}"><div class="av">Lu</div><div class="bub ai">${esc(m.text)}${m.showPt ? `<div class="pt">${esc(m.pt)}</div>` : ""}
+      <div class="tools"><button onclick="A.say('${m.id}')">🔊 Ouvir</button><button onclick="A.say('${m.id}',0.75)">🐢 Devagar</button><button onclick="A.tr('${m.id}')">🇧🇷 ${m.showPt ? "Ocultar" : "Tradução"}</button></div></div></div>`;
+  }
+  if (m.role === "model") {
+    return `<div class="mrow" id="m_${m.id}"><div class="av" style="background:var(--ok)">✓</div><div class="bub ai"><div class="lbl ok" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Resposta-modelo</div>${esc(m.text)}
+      <div class="tools"><button onclick="A.say('${m.id}')">🔊 Ouvir</button><button onclick="A.say('${m.id}',0.75)">🐢 Devagar</button><button onclick="A.pronText(${JSON.stringify(m.text).replace(/"/g, "&quot;")},'chat')">🎯 Treinar</button></div></div></div>`;
   }
   let chip = "";
-  if (m.cs === "pending") chip = `<span class="chip">⏳ analisando…</span>`;
-  else if (m.cs === "ok") chip = `<button class="chip ok" onclick="A.fix('${m.id}')">✓ Muito bom</button>`;
-  else if (m.cs === "fix") chip = `<button class="chip fix" onclick="A.fix('${m.id}')">✏️ Toque para corrigir</button>`;
-  else if (m.cs === "error") chip = `<button class="chip" onclick="A.recheck('${m.id}')">↻ Analisar</button>`;
+  if (m.free) chip = `<span class="chip ${m.cov >= 50 ? "ok" : "fix"}">📝 ${m.words} palavras · ${m.cov}% das ideias-chave</span>`;
+  else if (m.score == null) chip = `<span class="chip ok">✓ lido em voz alta</span>`;
+  else chip = `<button class="chip ${m.score >= 85 ? "ok" : "fix"}" onclick="A.fix('${m.id}')">🎯 Pronúncia ${m.score} · ver detalhes</button>`;
   return `<div class="mrow user" id="m_${m.id}"><div class="ucol"><div class="bub user">${esc(m.text)}</div>${chip}</div></div>`;
 }
 function renderMsgs() {
   const box = $("#msgs"); if (!box || !CH) return;
-  box.innerHTML = CH.msgs.map(msgHTML).join("") || "";
+  box.innerHTML = CH.msgs.map(msgHTML).join("");
   box.scrollTop = box.scrollHeight;
 }
-function updateMsg(m) {
-  const el = document.getElementById("m_" + m.id);
-  if (!el) return renderMsgs();
-  const box = $("#msgs"); const atBottom = box && box.scrollHeight - box.scrollTop - box.clientHeight < 80;
-  el.outerHTML = msgHTML(m);
-  if (box && atBottom) box.scrollTop = box.scrollHeight;
+function updateMsg(m) { const el = document.getElementById("m_" + m.id); if (el) el.outerHTML = msgHTML(m); else renderMsgs(); }
+function micBtn(target, big) {
+  return CAP.dict ? `<button class="${big ? "bigmic" : "iconbtn"} mic" data-mic="${target}" data-lbl="1" onclick="A.mic('${target}')">🎤</button>` : "";
 }
-function setAssist(html) { if (!CH) return; CH.assist = html; const el = $("#assist"); if (el) el.innerHTML = html; const b = $("#msgs"); if (b) b.scrollTop = b.scrollHeight; }
-async function aiTurn() {
-  if (!CH) return;
-  const chat = CH;
-  if (!CAP.sample) {
-    if (!CAP.ready) { setTimeout(aiTurn, 800); return; }
-    chat.msgs.push({id: uid(), role: "ai", text: aiErr({code: "no_ai"}), err: true}); renderMsgs(); return;
+function panelHTML() {
+  if (!CH) return "";
+  const st = document.getElementById("chatStep"); if (st) st.textContent = Math.min(CH.i + 1, CH.sc.turns.length - 1);
+  if (CH.stage === "choose") {
+    return `<div class="phint">Sua vez: escolha o que responder</div>${curOpts().map((o, k) => `<button class="optc" onclick="A.pick(${k})"><b>${esc(o[0])}</b><small>${esc(o[1])}</small></button>`).join("")}`;
   }
-  chat.busy = true;
-  const m = {id: uid(), role: "ai", text: "", streaming: true};
-  chat.msgs.push(m); renderMsgs();
-  try {
-    const res = await CAP.sample(buildMsgs(), {modelTier: "quick", cache: false, onText: ({text}) => { if (CH !== chat) return; m.text = text || ""; updateMsg(m); }});
-    m.text = String((res && res.text) || m.text || "").replace(/\*+/g, "").trim();
-    if (!m.text) throw {code: "empty"};
-  } catch (e) { m.text = aiErr(e); m.err = true; }
-  m.streaming = false; chat.busy = false;
-  if (CH !== chat) return;
-  updateMsg(m);
-  if (!m.err && S.profile.autoplay) speak(m.text);
+  if (CH.stage === "speak") {
+    const o = curOpts()[CH.sel] || ["", ""];
+    const r = CH.last;
+    return `<div class="row-flex between"><div class="phint" style="margin:0">${CAP.dict ? "Agora leia em voz alta 🎤" : "Leia em voz alta"}</div><button class="small muted" style="text-decoration:underline" onclick="A.unpick()">trocar resposta</button></div>
+      <div class="tgt">${r ? r.words.map(w => `<span class="s-${scoreCls(w.sc)}">${esc(w.w)}</span>`).join(" ") : esc(o[0])}</div>
+      <div class="small muted center">${esc(o[1])}</div>
+      <div class="row-flex mt8" style="justify-content:center;gap:14px">
+        <button class="iconbtn" style="background:var(--brand-soft)" onclick="A.sayText(${JSON.stringify(o[0]).replace(/"/g, "&quot;")})">🔊</button>
+        ${CAP.dict ? micBtn("chat", true) : `<button class="btn" onclick="A.readDone()">✓ Já li em voz alta</button>`}
+        <button class="iconbtn" style="background:var(--brand-soft)" onclick="A.sayText(${JSON.stringify(o[0]).replace(/"/g, "&quot;")},0.72)">🐢</button>
+      </div>
+      <p class="small center" id="heardLive" style="min-height:18px;color:var(--brand-2)"></p>
+      ${r ? `<div class="row-flex"><button class="btn ghost block" onclick="A.again()">↻ Tentar de novo</button><button class="btn block" onclick="A.cont()">Continuar →</button></div>` : ""}`;
+  }
+  if (CH.stage === "free") {
+    const answered = CH.last && CH.last.free;
+    if (answered) return `<div class="phint">Compare com a resposta-modelo acima e treine a pronúncia dela.</div><div class="row-flex"><button class="btn ghost block" onclick="A.againFree()">↻ Responder de novo</button><button class="btn block" onclick="A.cont()">Continuar →</button></div>`;
+    return `<div class="phint">Sua vez: responda com suas palavras ${CAP.dict ? "(fale ou digite)" : "(digite)"}</div>
+      <div class="row-flex" style="align-items:flex-end"><textarea id="freeInput" class="field" style="min-height:70px" placeholder="Sua resposta em inglês…"></textarea>${micBtn("free", false)}</div>
+      <div class="row-flex mt8"><button class="btn ghost block" onclick="A.showModel()">Ver resposta-modelo</button><button class="btn block" onclick="A.sendFree()">Enviar</button></div>`;
+  }
+  if (CH.stage === "done") return `<button class="btn block orange" onclick="A.endChat()">Ver meu resumo 🎉</button>`;
+  return "";
 }
-function sendChat() {
+function updatePanel() { const p = $("#panel"); if (p) { p.innerHTML = panelHTML(); updateMicUI(); } const b = $("#msgs"); if (b) b.scrollTop = b.scrollHeight; }
+function chatHeard(heard) {
+  if (!CH || CH.stage !== "speak") return;
+  if (!heard) { toast("Não ouvi nada. Toque no microfone e leia a frase."); return; }
+  const o = curOpts()[CH.sel]; if (!o) return;
+  const r = scorePron(o[0], heard);
+  CH.last = r;
+  const m = {id: uid(), role: "user", text: heard, target: o[0], score: r.overall, words: r.words};
+  // substitui a tentativa anterior do mesmo turno
+  const prev = CH.msgs[CH.msgs.length - 1];
+  if (prev && prev.role === "user" && prev.turn === CH.i) CH.msgs.pop();
+  m.turn = CH.i;
+  CH.msgs.push(m);
+  addXP(Math.max(1, Math.round(r.overall / 20)));
+  if (r.overall > (S.pronBest || 0)) S.pronBest = r.overall;
+  countWeak(r.words);
+  checkBadges(); save();
+  renderMsgs(); updatePanel();
+  if (r.overall >= 85) toast(r.overall >= 95 ? "🌟 Perfeito!" : "👏 Muito bom!");
+}
+function sendFree(text) {
   if (!CH) return;
-  const el = $("#chatInput"); const t = (el && el.value || "").trim();
-  if (!t) return;
-  if (CH.pt) { translateToEN(t); return; }
-  if (CH.busy) { toast("Espere a Lu terminar de responder."); return; }
-  el.value = ""; autoGrow(el); DICT.base = ""; DICT.partial = "";
-  setAssist("");
-  const m = {id: uid(), role: "user", text: t, cs: "pending", corr: null};
-  CH.msgs.push(m); addXP(5); renderMsgs();
-  correctMsg(m);
-  aiTurn();
-}
-async function correctMsg(m) {
-  if (!CH) return;
-  const chat = CH;
-  m.cs = "pending"; updateMsg(m);
-  const idx = chat.msgs.indexOf(m);
-  const prev = chat.msgs.slice(0, idx).reverse().find(x => x.role === "ai" && !x.err);
-  const prompt = `You are an English teacher for Brazilian learners (CEFR ${S.profile.level}). Analyze ONE turn the learner said in a spoken conversation. It came from speech-to-text, so IGNORE punctuation, capitalization and obvious transcription glitches; focus on grammar, word choice and naturalness.
-Context, the tutor said: "${prev ? prev.text : "(start of conversation)"}"
-Learner said: "${m.text}"
-Return JSON with exactly these keys:
-{"ok": true if it is correct and reasonably natural for a learner, else false,
- "corrected": "minimal grammatical correction keeping the learner's words and meaning (same as original if ok)",
- "natural": "how a native speaker would naturally say it in this context",
- "explanation": "short explanation in Brazilian Portuguese, max 2 sentences; if ok, a short specific compliment",
- "type": "grammar" | "vocabulary" | "naturalness" | "none",
- "new_words": [{"en": "useful word or expression from the natural version", "pt": "tradução"}] (0 to 2 items, only if ok is false)}
-If the learner wrote in Portuguese: ok=false, type="vocabulary", corrected and natural = the English version.`;
-  try {
-    const j = await askJSON(prompt, "quick");
-    m.corr = j; m.cs = j.ok ? "ok" : "fix";
-    if (!j.ok) {
-      const t = ["grammar", "vocabulary", "naturalness"].includes(j.type) ? j.type : "grammar";
-      S.errStats[t] = (S.errStats[t] || 0) + 1;
-      (Array.isArray(j.new_words) ? j.new_words : []).slice(0, 2).forEach(w => addVocab(w.en, w.pt, j.natural || j.corrected, "conversa"));
-      checkBadges();
-    } else addXP(2);
-    save();
-  } catch (e) { m.cs = "error"; }
-  if (CH === chat) updateMsg(m);
-}
-function diffMark(orig, corr) {
-  const o = new Set(String(orig).toLowerCase().replace(/[^a-z0-9'\s]/g, " ").split(/\s+/).filter(Boolean));
-  return String(corr).split(/(\s+)/).map(tok => { const n = tok.toLowerCase().replace(/[^a-z0-9']/g, ""); return n && !o.has(n) ? `<mark>${esc(tok)}</mark>` : esc(tok); }).join("");
+  text = String(text || "").trim();
+  if (text.split(/\s+/).filter(Boolean).length < 2) { toast("Responda com pelo menos uma frase em inglês."); return; }
+  const cov = coverage(CH.model, text);
+  const m = {id: uid(), role: "user", text, free: true, words: text.split(/\s+/).filter(Boolean).length, cov, turn: CH.i};
+  CH.msgs.push(m);
+  CH.msgs.push({id: uid(), role: "model", text: CH.model});
+  CH.last = {free: true};
+  addXP(5); save();
+  renderMsgs(); updatePanel();
 }
 function fixSheet(m) {
-  const c = m.corr || {};
-  const typeLbl = {grammar: "Gramática", vocabulary: "Vocabulário", naturalness: "Naturalidade", none: "Tudo certo"}[c.type] || "Correção";
-  const nat = c.natural || c.corrected || m.text;
-  window.__nat = nat;
-  sheet(`<div class="row-flex between"><h3>${c.ok ? "✓ Muito bom!" : "✏️ Correção"}</h3><span class="tag ${c.ok ? "" : "orange"}">${typeLbl}</span></div>
-    <div class="cmp">
-      <div class="card"><div class="lbl ${c.ok ? "ok" : "bad"}">Você disse</div>${esc(m.text)}</div>
-      ${!c.ok && c.corrected && c.corrected !== m.text ? `<div class="card"><div class="lbl ok">Correto</div>${diffMark(m.text, c.corrected)}</div>` : ""}
-      ${c.natural ? `<div class="card"><div class="lbl br">Jeito nativo de dizer</div>${esc(c.natural)}</div>` : ""}
-    </div>
-    ${c.explanation ? `<p class="small" style="background:#fff;border-radius:12px;padding:12px">💡 ${esc(c.explanation)}</p>` : ""}
-    <div class="row-flex mt12"><button class="btn sec block" onclick="A.sayText(__nat)">🔊 Ouvir</button><button class="btn block" onclick="A.pronText(__nat)">🎯 Praticar frase</button></div>`);
+  const tips = ruleTips(m.words.filter(w => w.sc < 85).map(w => w.w));
+  window.__tgt = m.target;
+  sheet(`<div class="row-flex between"><h3>🎯 Pronúncia</h3><span class="tag ${m.score >= 85 ? "" : "orange"}">${m.score}/100</span></div>
+    <div class="wscore mt12">${m.words.map(w => `<span class="s-${scoreCls(w.sc)}">${esc(w.w)}<small>${w.sc}</small></span>`).join("")}</div>
+    <div class="cmp"><div class="card"><div class="lbl br">Frase</div>${esc(m.target)}</div><div class="card"><div class="lbl ${m.score >= 85 ? "ok" : "bad"}">O reconhecimento entendeu</div>${esc(m.text)}</div></div>
+    ${tips.length ? `<div class="card"><h3 class="mb8">🧑‍🏫 Dicas</h3>${tips.map(t => `<div class="mb12"><b>${esc(t.word)}</b> <span class="tag orange">${esc(t.ipa)}</span><p class="small muted mt8">${esc(t.tip)}</p></div>`).join("")}</div>` : `<p class="small muted">Tudo claro! Continue assim.</p>`}
+    <div class="row-flex mt12"><button class="btn sec block" onclick="A.sayText(__tgt)">🔊 Ouvir</button><button class="btn block" onclick="A.pronText(__tgt,'chat')">🎯 Treinar frase</button></div>`);
 }
-async function translateToEN(t) {
-  setAssist(`<div class="card"><span class="dots"><i></i><i></i><i></i></span> Traduzindo…</div>`);
-  try {
-    const j = await askJSON(`Translate this Brazilian Portuguese sentence into natural, spoken English suitable for CEFR ${S.profile.level}, fitting a conversation. Return JSON {"en": "...", "note": "optional very short tip in Portuguese about a tricky word, or empty"}.\nSentence: "${t}"`, "quick");
-    window.__en = j.en || "";
-    setAssist(`<div class="card"><div class="lbl br" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--brand)">Em inglês, diga:</div><p style="font-size:16px;font-weight:600;margin:4px 0">${esc(j.en)}</p>${j.note ? `<p class="small muted">${esc(j.note)}</p>` : ""}
-      <div class="row-flex mt8"><button class="btn sec sm" onclick="A.sayText(__en)">🔊 Ouvir</button><button class="btn sm" onclick="A.useEN()">Usar e falar</button><button class="btn ghost sm" onclick="A.assistClose()">✕</button></div></div>`);
-  } catch (e) { setAssist(`<div class="card">${esc(aiErr(e))}</div>`); }
-}
-async function hint() {
-  if (!CH) return;
-  const lastAi = [...CH.msgs].reverse().find(m => m.role === "ai" && !m.err);
-  if (!lastAi) return;
-  setAssist(`<div class="card"><span class="dots"><i></i><i></i><i></i></span> Pensando em ideias…</div>`);
-  try {
-    const j = await askJSON(`A Brazilian English learner (CEFR ${S.profile.level}) is stuck. The tutor just said: "${lastAi.text}". Scenario: ${CH.sc.title}.
-Give 2 different short answers the learner could say next (natural, level-appropriate, first person), each with a Portuguese translation. Return JSON {"suggestions":[{"en":"...","pt":"..."},{"en":"...","pt":"..."}]}`, "quick");
-    window.__sugg = (j.suggestions || []).slice(0, 3);
-    setAssist(`<div class="card"><div class="row-flex between"><b>💡 Você pode dizer:</b><button class="btn ghost sm" onclick="A.assistClose()">✕</button></div>${window.__sugg.map((s, i) => `<button class="sugg" onclick="A.useSugg(${i})">${esc(s.en)}<small>${esc(s.pt)}</small></button>`).join("")}</div>`);
-  } catch (e) { setAssist(`<div class="card">${esc(aiErr(e))}</div>`); }
-}
-async function endChat() {
+function endChat() {
   if (!CH) return go("home");
   stopSpeak();
   if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} }
   const chat = CH;
   const userMsgs = chat.msgs.filter(m => m.role === "user");
-  if (!userMsgs.length) { CH = null; return go("home"); }
-  const dur = Math.floor((Date.now() - chat.start) / 1000);
   CH = null;
-  SUM = {loading: true, sc: chat.sc};
-  view = "summary"; render();
-  const transcript = chat.msgs.filter(m => !m.err && m.text).map(m => (m.role === "ai" ? "Tutor: " : "Learner: ") + m.text).join("\n");
-  const found = userMsgs.filter(m => m.corr && !m.corr.ok).map(m => `- "${m.text}" -> "${m.corr.corrected}"`).join("\n") || "(none)";
-  let sum = null;
-  try {
-    sum = await askJSON(`You are an English speaking coach. Analyze this practice conversation of a Brazilian learner (CEFR ${S.profile.level}). Scenario: ${chat.sc.title}.${chat.sc.exam ? ` This was a mock ${chat.sc.title} speaking test.` : ""}
-TRANSCRIPT:
-${transcript}
-CORRECTIONS ALREADY FOUND:
-${found}
-Return JSON:
-{"takeaways": ["3 short, specific takeaways in Brazilian Portuguese"],
- "mistakes": [{"original": "...", "corrected": "...", "tip": "short tip in Portuguese"}] (max 5, the most important, empty if none),
- "words": [{"en": "...", "pt": "...", "example": "short English example"}] (3 to 6 useful words or expressions for this scenario),
- "scores": {"fluency": 0-10, "grammar": 0-10, "vocabulary": 0-10},
- "estimate": "${chat.sc.exam ? "estimated score for this exam (e.g. IELTS band 6.0, TOEFL Speaking 22/30, or CEFR B2 for TDIE) + 1 sentence of justification in Portuguese" : "CEFR estimate for this conversation, e.g. B1, with a few words in Portuguese"}",
- "next_step": "one concrete suggestion in Portuguese for the next practice"}`, "default");
-  } catch (e) { sum = {error: aiErr(e)}; }
+  if (!userMsgs.length) return go("home");
+  const dur = Math.floor((Date.now() - chat.start) / 1000);
+  const scored = userMsgs.filter(m => typeof m.score === "number");
+  const avg = scored.length ? Math.round(scored.reduce((a, m) => a + m.score, 0) / scored.length) : null;
+  const weak = [];
+  scored.forEach(m => m.words.forEach(w => { if (w.sc < 70 && !weak.some(x => x.toLowerCase() === w.w.toLowerCase())) weak.push(w.w.replace(/[^A-Za-z'’-]/g, "")); }));
+  const free = userMsgs.filter(m => m.free);
+  const cov = free.length ? Math.round(free.reduce((a, m) => a + m.cov, 0) / free.length) : null;
+  const complete = chat.i >= chat.sc.turns.length - 1;
   const added = [];
-  (sum && Array.isArray(sum.words) ? sum.words : []).forEach(w => { if (addVocab(w.en, w.pt, w.example, chat.sc.title)) added.push(w.en); });
-  const xp = 20;
+  (chat.sc.vocab || []).forEach(v => { if (addVocab(v[0], v[1], "", chat.sc.title)) added.push(v[0]); });
+  const xp = complete ? 20 : 8;
   addXP(xp);
-  const rec = {id: chat.id, scId: chat.sc.id, title: chat.sc.title, emoji: chat.sc.emoji, cat: chat.sc.cat, exam: !!chat.sc.exam, date: new Date().toISOString(), dur, turns: userMsgs.length,
-    fixes: userMsgs.filter(m => m.cs === "fix").length, summary: sum, msgs: chat.msgs.filter(m => !m.err && m.text).map(m => ({r: m.role, t: m.text}))};
+  const tips = ruleTips(weak).slice(0, 3);
+  const summary = {avg, cov, weak: weak.slice(0, 8), tips, complete, words: (chat.sc.vocab || []).map(v => ({en: v[0], pt: v[1]}))};
+  const rec = {id: chat.id, scId: chat.sc.id, title: chat.sc.title, emoji: chat.sc.emoji, cat: chat.sc.cat, exam: !!chat.sc.exam, date: new Date().toISOString(), dur, turns: userMsgs.length, summary,
+    msgs: chat.msgs.map(m => ({r: m.role === "ai" ? "ai" : m.role === "model" ? "model" : "user", t: m.text}))};
   S.sessions.unshift(rec);
   checkBadges(); save();
-  SUM = {loading: false, rec, added, xp: xp + userMsgs.length * 5};
-  if (view === "summary") render();
+  SUM = {rec, added, xp};
+  go("summary");
 }
 
 /* ============================================================
@@ -1077,21 +1086,18 @@ Return JSON:
 let SUM = null;
 VIEWS.summary = () => {
   if (!SUM) return VIEWS.home();
-  if (SUM.loading) return `<div class="center" style="padding-top:80px"><div class="spin"></div><h3>Preparando seu resumo…</h3><p class="muted small mt8">Pontos-chave, erros mais importantes e palavras novas.</p></div>`;
   const r = SUM.rec, s = r.summary || {};
-  window.__sumWords = (s.words || []);
-  const sc = s.scores || {};
+  window.__sumWords = s.words || [];
+  const verdict = s.avg == null ? "" : s.avg >= 85 ? "Pronúncia muito clara! 🌟" : s.avg >= 65 ? "Boa pronúncia, com alguns ajustes." : "Vale treinar as palavras destacadas.";
   return `<div class="row-flex"><button class="iconbtn" onclick="A.go('${SUM.fromProgress ? "progress" : "home"}')">←</button></div>
-  <div class="sumhead"><div class="em">${r.emoji}</div><h1>${esc(r.title)}</h1><p class="muted small mt8">${new Date(r.date).toLocaleString("pt-BR", {dateStyle: "short", timeStyle: "short"})}</p>
+  <div class="sumhead"><div class="em">${r.emoji}</div><h1>${esc(r.title)}</h1><p class="muted small mt8">${new Date(r.date).toLocaleString("pt-BR", {dateStyle: "short", timeStyle: "short"})}${s.complete === false ? " · parcial" : ""}</p>
   <div class="kv"><span class="pill">⏱️ ${Math.max(1, mins(r.dur))} min</span><span class="pill">💬 ${r.turns} falas</span>${SUM.xp ? `<span class="pill">⭐ +${SUM.xp} XP</span>` : ""}</div></div>
-  ${s.error ? `<div class="banner warn">Não consegui gerar o resumo: ${esc(s.error)}</div>` : ""}
-  ${s.estimate ? `<div class="card mb12"><h3>${r.exam ? "🎓 Nota estimada" : "📊 Nível nesta conversa"}</h3><p class="mt8">${esc(s.estimate)}</p></div>` : ""}
-  ${sc.fluency != null ? `<div class="card mb12"><h3 class="mb8">Desempenho</h3>${[["Fluência", sc.fluency], ["Gramática", sc.grammar], ["Vocabulário", sc.vocabulary]].map(x => `<div class="meter"><span>${x[0]}</span><div class="t"><i style="width:${clamp(Number(x[1]) || 0, 0, 10) * 10}%"></i></div><b>${Number(x[1]) || 0}/10</b></div>`).join("")}</div>` : ""}
-  ${(s.takeaways || []).length ? `<h2>Pontos-chave</h2><div class="card"><ul class="clean">${s.takeaways.map(t => `<li>${esc(t)}</li>`).join("")}</ul></div>` : ""}
-  ${(s.mistakes || []).length ? `<h2>Para corrigir</h2><div class="list">${s.mistakes.map(m => `<div class="card"><p class="small"><s class="del">${esc(m.original)}</s></p><p style="font-weight:700;color:var(--ok)" class="mt8">${esc(m.corrected)}</p>${m.tip ? `<p class="small muted mt8">${esc(m.tip)}</p>` : ""}</div>`).join("")}</div>` : ""}
-  ${(s.words || []).length ? `<h2>Palavras novas</h2><p class="small muted mb8">${SUM.added && SUM.added.length ? "Já adicionei ao seu vocabulário ✓" : "Estão no seu vocabulário."}</p><div class="list">${s.words.map((w, i) => `<div class="vrow"><div class="body"><b>${esc(w.en)}</b><div>${esc(w.pt)}</div>${w.example ? `<i>${esc(w.example)}</i>` : ""}</div><button class="iconbtn" onclick="A.sayWord(${i})">🔊</button></div>`).join("")}</div>` : ""}
-  ${s.next_step ? `<div class="banner info mt16">👉 ${esc(s.next_step)}</div>` : ""}
-  ${(r.msgs || []).length ? `<h2>Conversa</h2><div class="card small">${r.msgs.map(m => `<p class="mb8"><b>${m.r === "ai" ? "Lu" : "Você"}:</b> ${esc(m.t)}</p>`).join("")}</div>` : ""}
+  ${s.avg != null ? `<div class="card mb12 center"><h3>🎯 Pronúncia média</h3><div class="score-big" style="color:${s.avg >= 85 ? "var(--ok)" : s.avg >= 55 ? "var(--warn)" : "var(--bad)"}">${s.avg}</div><p class="small muted">${verdict}</p></div>` : ""}
+  ${s.cov != null ? `<div class="card mb12"><h3>📝 Respostas livres</h3><div class="meter"><span>Ideias-chave</span><div class="t"><i style="width:${s.cov}%"></i></div><b>${s.cov}%</b></div><p class="small muted mt8">Quanto das ideias da resposta-modelo apareceu nas suas respostas. Releia as respostas-modelo na conversa abaixo e treine em voz alta.</p></div>` : ""}
+  ${(s.weak || []).length ? `<h2>Palavras para treinar</h2><div class="card"><div class="wscore" style="justify-content:flex-start">${s.weak.map(w => `<button class="s-bad" style="border-radius:10px;padding:6px 10px;font-weight:700" onclick="A.sayText(${JSON.stringify(w).replace(/"/g, "&quot;")})">🔊 ${esc(w)}</button>`).join("")}</div>
+    ${(s.tips || []).map(t => `<div class="mt12"><span class="tag orange">${esc(t.ipa)}</span> <b>${esc(t.word)}</b><p class="small muted mt8">${esc(t.tip)}</p></div>`).join("")}</div>` : ""}
+  ${(s.words || []).length ? `<h2>Expressões desta situação</h2><p class="small muted mb8">${SUM.added && SUM.added.length ? "Adicionadas ao seu vocabulário ✓" : "Estão no seu vocabulário."}</p><div class="list">${s.words.map((w, i) => `<div class="vrow"><div class="body"><b>${esc(w.en)}</b><div>${esc(w.pt)}</div></div><button class="iconbtn" onclick="A.sayWord(${i})">🔊</button></div>`).join("")}</div>` : ""}
+  ${(r.msgs || []).length ? `<h2>Conversa</h2><div class="card small">${r.msgs.map(m => `<p class="mb8"><b>${m.r === "ai" ? "Lu" : m.r === "model" ? "Modelo" : "Você"}:</b> ${esc(m.t)}</p>`).join("")}</div>` : ""}
   <div class="row-flex mt16"><button class="btn ghost block" onclick="A.go('home')">Início</button><button class="btn block" onclick="A.start('${r.scId}')">Praticar de novo</button></div>`;
 };
 
@@ -1157,19 +1163,11 @@ VIEWS.pron = () => {
     : `<button class="btn ghost block" onclick="A.pronTips()">🧑‍🏫 Dicas de pronúncia desta frase</button>`}</div>
   <div class="row-flex mt12"><button class="btn ghost block" onclick="A.pronRetry()">↻ Repetir</button><button class="btn block" onclick="A.pronNext()">Próxima frase →</button></div>`;
 };
-async function pronTips() {
-  if (!CAP.sample) { toast(aiErr({code: "no_ai"})); return; }
-  const target = PR.list[PR.idx];
-  const weak = PR.result ? PR.result.words.filter(w => w.sc < 85).map(w => w.w) : [];
-  PR.tips = "…"; render();
-  try {
-    const j = await askJSON(`You are a pronunciation coach for Brazilian Portuguese speakers learning American English.
-Sentence: "${target}"
-${weak.length ? `Words the learner struggled with: ${weak.join(", ")}.` : "Pick the 2-3 words in this sentence that Brazilians most often mispronounce."}
-Return JSON {"tips":[{"word":"...","ipa":"/IPA (American)/","tip":"practical tip in Brazilian Portuguese (mouth/tongue position, comparison with a Portuguese sound, common mistake to avoid), max 2 sentences"}]} with 2 to 4 items. Add a final item with word "Entonação" and a tip about rhythm/stress of the whole sentence.`, "quick");
-    PR.tips = Array.isArray(j.tips) ? j.tips : [];
-  } catch (e) { PR.tips = null; toast(aiErr(e)); }
-  if (view === "pron") render();
+function pronTips() {
+  const words = PR.result ? PR.result.words.filter(w => w.sc < 85).map(w => w.w) : String(PR.list[PR.idx] || "").split(/\s+/);
+  PR.tips = ruleTips(words);
+  if (!PR.tips.length) PR.tips = [{word: "Tudo claro", ipa: "👏", tip: "Nenhum som difícil apareceu. Tente ler mais rápido, juntando as palavras."}];
+  render();
 }
 
 /* ============================================================
@@ -1212,7 +1210,7 @@ VIEWS.progress = () => {
   const days = []; for (let i = 6; i >= 0; i--) days.push(addDays(today(), -i));
   const max = Math.max(S.profile.dailyMin * 60, ...days.map(d => S.days[d] || 0));
   const wd = ["D", "S", "T", "Q", "Q", "S", "S"];
-  const es = S.errStats, et = (es.grammar || 0) + (es.vocabulary || 0) + (es.naturalness || 0);
+  const es = S.errStats, top = Object.entries(es).filter(e => e[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 5), et = top.reduce((a, e) => a + e[1], 0);
   return `<h1>Progresso</h1>
   <div class="card mt12"><div class="row-flex between"><h3>⭐ Nível ${lv}</h3><span class="small muted">${inLv}/200 XP</span></div><div class="xpbar"><i style="width:${inLv / 2}%"></i></div><p class="small muted mt8">${S.xp} XP no total</p></div>
   <div class="stats mt12"><div class="stat"><b>🔥 ${streak()}</b><span>dias seguidos</span></div><div class="stat"><b>${totalMin}</b><span>minutos falando</span></div><div class="stat"><b>${S.sessions.length}</b><span>conversas</span></div></div>
@@ -1221,7 +1219,7 @@ VIEWS.progress = () => {
   <p class="small muted mt8">Laranja = meta de ${S.profile.dailyMin} min batida.</p></div>
   <h2>Conquistas</h2>
   <div class="badges">${BADGES.map(b => `<div class="badge ${S.badges.includes(b.id) ? "" : "off"}"><span class="em">${b.em}</span>${esc(b.name)}</div>`).join("")}</div>
-  ${et ? `<h2>Onde você mais erra</h2><div class="card">${[["Gramática", es.grammar || 0], ["Vocabulário", es.vocabulary || 0], ["Naturalidade", es.naturalness || 0]].map(x => `<div class="meter"><span>${x[0]}</span><div class="t"><i style="width:${Math.round(x[1] / et * 100)}%;background:var(--accent)"></i></div><b>${x[1]}</b></div>`).join("")}</div>` : ""}
+  ${et ? `<h2>Sons que mais pegam</h2><div class="card">${top.map(e => [TIP_LABEL[e[0]] || e[0], e[1]]).map(x => `<div class="meter"><span>${x[0]}</span><div class="t"><i style="width:${Math.round(x[1] / et * 100)}%;background:var(--accent)"></i></div><b>${x[1]}</b></div>`).join("")}</div>` : ""}
   <div class="stats mt12"><div class="stat"><b>${S.vocab.length}</b><span>palavras</span></div><div class="stat"><b>${S.pronBest || 0}</b><span>melhor pronúncia</span></div><div class="stat"><b>${S.profile.level}</b><span>nível CEFR</span></div></div>
   <h2>Histórico</h2>
   <div class="list">${S.sessions.length ? S.sessions.slice(0, 40).map((s, i) => `<button class="item" onclick="A.openSession(${i})"><span class="em">${s.emoji}</span><div class="body"><b>${esc(s.title)}</b><span>${new Date(s.date).toLocaleDateString("pt-BR")} · ${Math.max(1, mins(s.dur))} min · ${s.turns} falas${s.summary && s.summary.estimate ? " · " + esc(String(s.summary.estimate).split(/[,.;(]/)[0]) : ""}</span></div><span class="chev">›</span></button>`).join("") : `<div class="card center muted small">Suas conversas aparecem aqui com resumo e correções.</div>`}</div>`;
@@ -1259,7 +1257,7 @@ VIEWS.profile = () => {
     <button class="item" onclick="A.logout()"><span class="em">🚪</span><div class="body"><b>Sair da conta</b><span>${esc(SESSION && SESSION.user.email || "")}</span></div><span class="chev">›</span></button>
   </div>
   <h2>Status</h2>
-  <div class="card"><div class="status">${st(!!CAP.sample, "IA")}${st(!!CAP.dict, "Microfone")}${st("speechSynthesis" in window, "Voz")}${st(!!CAP.synced, "Sincronização")}</div>
+  <div class="card"><div class="status">${st(!!CAP.dict, "Microfone")}${st("speechSynthesis" in window, "Voz")}${st(!!CAP.synced, "Sincronização")}</div>
   <p class="small muted mt8">${CAP.synced ? "Seu progresso fica salvo na sua conta e neste aparelho." : "Progresso salvo neste aparelho; sincroniza quando houver conexão."} ${CAP.dict ? "" : "Para falar pelo microfone, use o Chrome (Android/PC) ou o Safari (iPhone)."}</p></div>
   <h2>Sobre</h2>
   <div class="dev">${DEVLOGO}<div><b>Desenvolvido por DomDevLabs</b><p class="small muted">domdevlabs@gmail.com</p><p class="small muted">Papo English v${VERSION}</p></div></div>
@@ -1286,25 +1284,20 @@ const A = {
   },
   obSet(k, v) { OB.d[k] = v; render(); },
   obToggle(k, v) { const a = OB.d[k]; const i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); render(); },
-  obPlaceNext() {
-    const P = OB.place; const el = $("#placeAns"); const v = (el && el.value || "").trim();
-    if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} }
-    if (v.split(/\s+/).length < 2) { toast("Responda com pelo menos uma frase, em inglês."); return; }
-    P.ans[P.i] = v;
-    if (P.i < 2) { P.i++; render(); return; }
-    A.evalPlacement();
+  placeHeard(heard) {
+    const P = OB.place;
+    if (!heard) { toast("Não ouvi nada. Toque no microfone e leia a frase."); return; }
+    P.ans[P.i] = scorePron(PLACE_Q[P.i][0], heard); render();
   },
-  async evalPlacement() {
-    const P = OB.place; P.busy = true; render();
-    try {
-      const j = await askJSON(`You are a certified CEFR examiner. A Brazilian learner answered 3 speaking prompts (transcribed from speech or typed, ignore punctuation and capitalization). Self-assessed level: ${OB.d.level || S.profile.level}.
-${PLACE_Q.map((q, i) => `Q${i + 1}: ${q}\nA${i + 1}: ${P.ans[i] || "(no answer)"}`).join("\n")}
-Estimate the CEFR level (one of A1, A2, B1, B2, C1). Return JSON {"level":"B1","reason_pt":"2 sentences in Brazilian Portuguese explaining why","strengths":["1-2 short items in Portuguese"],"focus":["2 short items in Portuguese to improve"]}`, "default");
-      if (!["A1", "A2", "B1", "B2", "C1"].includes(j.level)) j.level = OB.d.level || "B1";
-      P.result = j; OB.d.level = j.level;
-    } catch (e) { toast(aiErr(e)); }
-    P.busy = false;
-    if (view === "onb") render(); else if (view === "placement") render();
+  obPlaceNext() {
+    const P = OB.place;
+    if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} }
+    if (!P.ans[P.i]) { toast("Leia a frase no microfone primeiro."); return; }
+    if (P.i < 2) { P.i++; render(); return; }
+    const sc = P.ans.map(a => a ? a.overall : 0);
+    const level = placementLevel(sc, OB.d.level);
+    P.result = {level, reason_pt: `Clareza na leitura: frase A2 ${sc[0]}, B1 ${sc[1]}, B2 ${sc[2]}. Estimativa pela pronúncia e fluência na leitura; ajuste no Perfil se achar que não reflete seu nível.`};
+    OB.d.level = level; render();
   },
   obSkipPlace() { OB.step++; render(); },
   obFinish() {
@@ -1315,36 +1308,27 @@ Estimate the CEFR level (one of A1, A2, B1, B2, C1). Return JSON {"level":"B1","
     go("home");
   },
   /* chat */
-  send: () => sendChat(),
-  retry() { if (!CH || CH.busy) return; CH.msgs = CH.msgs.filter(m => !m.err); aiTurn(); },
   leaveChat() {
     if (CH && CH.msgs.some(m => m.role === "user")) confirmBox("Sair agora? Você perde o resumo desta conversa.", "Sair", () => { stopSpeak(); CH = null; go("home"); });
     else { stopSpeak(); CH = null; go("home"); }
   },
   endChat: () => endChat(),
-  toggleAuto() { S.profile.autoplay = !S.profile.autoplay; save(); if (!S.profile.autoplay) stopSpeak(); const keep = $("#chatInput") && $("#chatInput").value; render(); if (keep) $("#chatInput").value = keep; toast(S.profile.autoplay ? "Áudio automático ligado" : "Áudio automático desligado"); },
-  togglePT() { if (!CH) return; if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} } CH.pt = !CH.pt; render(); const el = $("#chatInput"); if (el) el.focus(); },
-  useEN() { if (!CH) return; CH.pt = false; const en = window.__en || ""; render(); const el = $("#chatInput"); if (el) { el.value = en; autoGrow(el); } setAssist(""); toast(CAP.dict ? "Agora fale a frase no microfone 🎤" : "Leia em voz alta e envie ➤"); },
-  useSugg(i) { const s = (window.__sugg || [])[i]; if (!s) return; const el = $("#chatInput"); if (el) { el.value = s.en; autoGrow(el); } speak(s.en); setAssist(""); },
-  assistClose() { setAssist(""); },
-  hint: () => hint(),
+  toggleAuto() { S.profile.autoplay = !S.profile.autoplay; save(); if (!S.profile.autoplay) stopSpeak(); render(); toast(S.profile.autoplay ? "Áudio automático ligado" : "Áudio automático desligado"); },
+  pick(k) { if (!CH) return; CH.sel = k; CH.stage = "speak"; CH.last = null; updatePanel(); const o = curOpts()[k]; if (o && S.profile.autoplay) speak(o[0]); },
+  unpick() { if (!CH) return; if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} } CH.sel = null; CH.last = null; CH.stage = "choose"; updatePanel(); },
+  again() { if (!CH) return; CH.last = null; updatePanel(); },
+  readDone() {
+    if (!CH) return; const o = curOpts()[CH.sel]; if (!o) return;
+    CH.msgs.push({id: uid(), role: "user", text: o[0], score: null, turn: CH.i}); addXP(2); save(); renderMsgs(); nextTurn();
+  },
+  cont() { if (!CH) return; if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} } nextTurn(); },
+  sendFree() { const el = $("#freeInput"); if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} } sendFree(el ? el.value : ""); },
+  showModel() { if (!CH) return; CH.msgs.push({id: uid(), role: "model", text: CH.model}); CH.last = {free: true}; renderMsgs(); updatePanel(); },
+  againFree() { if (!CH) return; CH.last = null; updatePanel(); },
   say(id, rate) { const m = CH && CH.msgs.find(x => x.id === id); if (m) speak(m.text, rate ? {rate} : null); },
   sayText(t, rate) { speak(t, rate ? {rate} : null); },
-  async tr(id) {
-    const m = CH && CH.msgs.find(x => x.id === id); if (!m) return;
-    if (m.pt && m.pt !== "…") { m.pt = ""; updateMsg(m); return; }
-    m.pt = "…"; updateMsg(m);
-    try { m.pt = await askText(`Translate to natural Brazilian Portuguese. Return only the translation.\n\n${m.text}`, "quick"); }
-    catch (e) { m.pt = ""; toast(aiErr(e)); }
-    if (CH) updateMsg(m);
-  },
-  fix(id) { const m = CH && CH.msgs.find(x => x.id === id); if (m && m.corr) fixSheet(m); },
-  recheck(id) { const m = CH && CH.msgs.find(x => x.id === id); if (m) correctMsg(m); },
-  pronFrom(id) {
-    const m = CH && CH.msgs.find(x => x.id === id); if (!m) return;
-    const parts = m.text.split(/(?<=[.!?])\s+/).filter(s => s.split(/\s+/).length >= 3);
-    A.pronText(parts.length ? parts[0] : m.text, "chat");
-  },
+  tr(id) { const m = CH && CH.msgs.find(x => x.id === id); if (!m) return; m.showPt = !m.showPt; updateMsg(m); },
+  fix(id) { const m = CH && CH.msgs.find(x => x.id === id); if (m && m.words) fixSheet(m); },
   pronText(t, back) { closeSheet(); PR = {src: "custom", list: [String(t)], idx: 0, result: null, heard: "", tips: null, back: back || (view === "chat" || CH ? "chat" : "practice")}; go("pron"); },
   /* pronúncia */
   pronOpen() { PR = {src: "level", list: pronList("level"), idx: 0, result: null, heard: "", tips: null, back: view}; go("pron"); },
@@ -1363,7 +1347,7 @@ Estimate the CEFR level (one of A1, A2, B1, B2, C1). Return JSON {"level":"B1","
   learn(id) { const v = S.vocab.find(x => x.id === id); if (!v) return; v.learned = !v.learned; if (!v.learned) { v.box = 0; v.due = today(); } save(); A.vocabList(); },
   delV(id) { confirmBox("Remover esta palavra?", "Remover", () => { S.vocab = S.vocab.filter(x => x.id !== id); save(); render(); }); },
   addWord() {
-    sheet(`<h3 class="mb12">Adicionar palavra ou expressão</h3><input id="nwEn" class="field mb8" placeholder="Em inglês (ex.: look forward to)"><input id="nwPt" class="field mb8" placeholder="Tradução (opcional: a IA completa)">
+    sheet(`<h3 class="mb12">Adicionar palavra ou expressão</h3><input id="nwEn" class="field mb8" placeholder="Em inglês (ex.: look forward to)"><input id="nwPt" class="field mb8" placeholder="Tradução em português">
       <div class="row-flex mt8"><button class="btn ghost block" onclick="A.close()">Cancelar</button><button class="btn block" onclick="A.saveWord()">Salvar</button></div>`);
     setTimeout(() => { const e = $("#nwEn"); if (e) e.focus(); }, 50);
   },
@@ -1371,9 +1355,6 @@ Estimate the CEFR level (one of A1, A2, B1, B2, C1). Return JSON {"level":"B1","
     const en = ($("#nwEn").value || "").trim(); let pt = ($("#nwPt").value || "").trim(); let ex = "";
     if (!en) { toast("Digite a palavra em inglês."); return; }
     closeSheet();
-    if (CAP.sample) {
-      try { const j = await askJSON(`For the English word or expression "${en}", return JSON {"pt":"Brazilian Portuguese translation","example":"short natural English example sentence"}.`, "quick"); if (!pt) pt = j.pt || ""; ex = j.example || ""; } catch (e) {}
-    }
     if (addVocab(en, pt, ex, "manual")) { addXP(1); checkBadges(); save(); toast("Adicionada ✓"); } else toast("Essa já está na lista.");
     if (view === "vocab") render();
   },
@@ -1408,7 +1389,7 @@ Estimate the CEFR level (one of A1, A2, B1, B2, C1). Return JSON {"level":"B1","
   togInt(n) { const v = INTERESTS[n]; const a = window.__int; const i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); window.__drawInt(); },
   saveInt() { S.profile.interests = window.__int.slice(); save(); closeSheet(); render(); },
   redoPlacement() {
-    if (!CAP.sample) { toast(aiErr({code: "no_ai"})); return; }
+    if (!CAP.dict) { toast("Para o teste por voz, abra no Chrome (Android/PC) ou no Safari (iPhone)."); return; }
     OB = {step: 7, d: Object.assign({}, S.profile, {challenges: (S.profile.challenges || []).slice(), interests: (S.profile.interests || []).slice()}), place: {i: 0, ans: [], busy: false, result: null}};
     view = "placement"; render();
   },
@@ -1417,7 +1398,7 @@ Estimate the CEFR level (one of A1, A2, B1, B2, C1). Return JSON {"level":"B1","
     go("profile");
   },
   invite() {
-    const text = `Estou treinando conversação em inglês com uma IA no Papo English 🇺🇸🗣️ Ela corrige na hora, em português, e dá nota de pronúncia palavra por palavra. Bora praticar junto? Me chama que eu te passo o link.`;
+    const text = `Estou treinando conversação em inglês no Papo English 🇺🇸🗣️ São diálogos de situações reais, simulados de prova e nota de pronúncia palavra por palavra. É grátis! Bora praticar junto? Me chama que eu te passo o link.`;
     window.__inv = text;
     sheet(`<h3>🎁 Convide um amigo</h3><p class="small muted mt8 mb12">Copie a mensagem e mande no WhatsApp junto com o link do app.</p><div class="card small">${esc(text)}</div><button class="btn block mt12" onclick="A.copyInv()">Copiar mensagem</button>`);
   },
