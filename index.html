@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Papo English — converse em inglês com IA</title>
+<meta name="description" content="Pratique conversação em inglês por voz com IA: correção em português, pronúncia palavra por palavra, vocabulário e simulados. Grátis.">
+<meta name="theme-color" content="#2B59E6">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F3EE;--card:#FFFFFF;--ink:#17202F;--muted:#667085;--line:#E7E3DA;
+  --brand:#2B59E6;--brand-2:#1E3A8A;--brand-soft:#E8EEFE;
+  --accent:#FF7A1A;--accent-soft:#FFF0E4;
+  --ok:#15803D;--ok-soft:#E3F5E9;--warn:#B45309;--warn-soft:#FEF3C7;--bad:#C62828;--bad-soft:#FDE8E8;
+  --r:18px;--shadow:0 1px 2px rgba(16,24,40,.05),0 4px 14px rgba(16,24,40,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,textarea,select{font:inherit;color:inherit}
+#app{max-width:540px;margin:0 auto;min-height:100vh;min-height:100dvh;position:relative}
+#screen{padding:18px 16px 96px}
+#screen.full{padding:0}
+h1{font-size:24px;line-height:1.2;font-weight:800;letter-spacing:-.02em}
+h2{font-size:18px;font-weight:800;letter-spacing:-.01em;margin:22px 0 10px}
+h3{font-size:15px;font-weight:700}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:16px}
+.row-flex{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--brand);color:#fff;font-weight:700;border-radius:14px;padding:13px 18px;min-height:46px;transition:transform .08s,opacity .2s}
+.btn:active{transform:scale(.98)}
+.btn.block{width:100%}
+.btn.sec{background:var(--brand-soft);color:var(--brand-2)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.orange{background:var(--accent)}
+.btn.sm{padding:8px 12px;min-height:36px;font-size:13px;border-radius:11px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--card);border-radius:999px;padding:6px 11px;font-weight:700;font-size:13px;box-shadow:var(--shadow)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--brand-soft);color:var(--brand-2)}
+.tag.orange{background:var(--accent-soft);color:#B4500B}
+.banner{border-radius:14px;padding:12px 14px;font-size:13.5px;margin-bottom:12px}
+.banner.info{background:var(--brand-soft);color:var(--brand-2)}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}
+.banner.ok{background:var(--ok-soft);color:var(--ok)}
+/* tabs */
+#tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:540px;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:20}
+#tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:600;color:var(--muted);padding:6px 0;border-radius:12px}
+#tabs button .ic{font-size:20px;line-height:1;filter:grayscale(1);opacity:.7}
+#tabs button.on{color:var(--brand)}
+#tabs button.on .ic{filter:none;opacity:1}
+/* home */
+.hello{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:16px}
+.goal{display:flex;gap:16px;align-items:center}
+.ring{--p:0;width:84px;height:84px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--p)*1%),#F1EDE5 0);display:grid;place-items:center;flex:none}
+.ring>div{width:66px;height:66px;border-radius:50%;background:#fff;display:grid;place-items:center;text-align:center;font-weight:800;font-size:16px;line-height:1.05}
+.ring small{font-size:10px;color:var(--muted);font-weight:600}
+.lesson{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);color:#fff;border-radius:22px;padding:18px;position:relative;overflow:hidden}
+.lesson .big{font-size:40px;position:absolute;right:16px;top:12px;opacity:.95}
+.lesson p{opacity:.85;font-size:13.5px;margin:4px 0 14px;max-width:80%}
+.lesson .btn{background:#fff;color:var(--brand-2)}
+.tile{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:14px;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:96px}
+.tile .em{font-size:24px}
+.tile b{font-size:14px}
+.tile span{font-size:12px;color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px;display:flex;align-items:center;gap:12px;text-align:left;width:100%}
+.item .em{font-size:24px;width:36px;text-align:center;flex:none}
+.item .body{flex:1;min-width:0}
+.item .body b{display:block;font-size:14.5px}
+.item .body span{font-size:12.5px;color:var(--muted)}
+.chev{color:var(--muted);font-size:18px}
+/* onboarding */
+.onb{min-height:calc(100dvh - 40px);display:flex;flex-direction:column}
+.onb .prog{height:6px;background:#E9E4DA;border-radius:9px;overflow:hidden;margin:4px 0 22px}
+.onb .prog i{display:block;height:100%;background:var(--accent);border-radius:9px;transition:width .3s}
+.onb .content{flex:1}
+.onb .foot{padding-top:16px;display:flex;gap:10px}
+.opt{width:100%;text-align:left;background:var(--card);border:2px solid transparent;border-radius:14px;padding:14px;margin-bottom:9px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);font-weight:600}
+.opt .em{font-size:22px}
+.opt small{display:block;font-weight:500;color:var(--muted);font-size:12.5px}
+.opt.on{border-color:var(--brand);background:var(--brand-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips .opt{width:auto;margin:0;padding:10px 14px}
+.field{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;outline:none}
+.field:focus{border-color:var(--brand)}
+textarea.field{min-height:110px;resize:vertical}
+.hero{text-align:center;padding-top:30px}
+.hero .logo{width:92px;height:92px;margin:0 auto 18px}
+.proj{display:flex;align-items:flex-end;gap:10px;height:140px;margin:18px 0 8px}
+.proj div{flex:1;background:var(--brand-soft);border-radius:10px 10px 4px 4px;position:relative;transition:height .3s}
+.proj div.on{background:var(--accent)}
+.proj div span{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:12px;font-weight:700}
+.proj-l{display:flex;gap:10px}
+.proj-l span{flex:1;text-align:center;font-size:12px;color:var(--muted);font-weight:600}
+/* chat */
+.chat{display:flex;flex-direction:column;height:100vh;height:100dvh;background:#EFEBE3}
+.chathead{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}
+.chathead .t{flex:1;min-width:0}
+.chathead .t b{display:block;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chathead .t small{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.iconbtn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:18px;flex:none}
+.iconbtn:active{background:#0000000d}
+.msgs{flex:1;overflow-y:auto;padding:14px 12px 10px;display:flex;flex-direction:column;gap:12px}
+.mrow{display:flex;gap:8px;align-items:flex-end}
+.mrow.user{justify-content:flex-end}
+.av{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.bub{max-width:82%;border-radius:18px;padding:10px 13px;font-size:15.5px;line-height:1.42;white-space:pre-wrap;word-wrap:break-word}
+.bub.ai{background:#fff;border-bottom-left-radius:6px;box-shadow:var(--shadow)}
+.bub.user{background:var(--brand);color:#fff;border-bottom-right-radius:6px}
+.bub.err{background:var(--bad-soft);color:var(--bad)}
+.bub .pt{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);color:var(--muted);font-size:13.5px}
+.tools{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.tools button{font-size:12px;font-weight:600;color:var(--brand-2);background:var(--brand-soft);border-radius:999px;padding:5px 10px}
+.ucol{display:flex;flex-direction:column;align-items:flex-end;gap:5px;max-width:84%}
+.ucol .bub{max-width:100%}
+.chip{font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px;background:#fff;color:var(--muted)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.fix{background:var(--warn-soft);color:var(--warn)}
+.dots{display:inline-flex;gap:4px;padding:4px 0}
+.dots i{width:7px;height:7px;border-radius:50%;background:#B7B2A8;animation:b 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-4px);opacity:1}}
+.assist{padding:0 12px}
+.assist .card{margin-bottom:8px;padding:12px 14px;font-size:14px}
+.sugg{display:block;width:100%;text-align:left;background:var(--brand-soft);border-radius:12px;padding:9px 12px;margin-top:6px}
+.sugg small{display:block;color:var(--muted);font-size:12px}
+.composer{display:flex;align-items:flex-end;gap:6px;padding:8px 10px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
+.composer textarea{flex:1;resize:none;border:1.5px solid var(--line);border-radius:20px;padding:10px 14px;max-height:120px;min-height:44px;outline:none;font-size:15px;background:#FAF9F6}
+.composer textarea:focus{border-color:var(--brand)}
+.composer .iconbtn{width:44px;height:44px;border-radius:50%}
+.mic{background:var(--accent);color:#fff}
+.mic.live{background:var(--bad);animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(198,40,40,.45)}70%{box-shadow:0 0 0 12px rgba(198,40,40,0)}100%{box-shadow:0 0 0 0 rgba(198,40,40,0)}}
+.send{background:var(--brand);color:#fff}
+.ptbtn{font-size:12px!important;font-weight:800;border:1.5px solid var(--line)}
+.ptbtn.on{background:#009C3B;color:#fff;border-color:#009C3B}
+/* sheet */
+#modal .back{position:fixed;inset:0;background:rgba(16,24,40,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center;animation:fade .15s}
+#modal .sheet{background:var(--bg);width:100%;max-width:540px;max-height:88vh;overflow-y:auto;border-radius:24px 24px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));animation:up .2s}
+#modal .grab{width:40px;height:5px;border-radius:9px;background:#D5D0C6;margin:0 auto 14px}
+@keyframes fade{from{opacity:0}}@keyframes up{from{transform:translateY(40px);opacity:.5}}
+.cmp{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.cmp .card{padding:12px 14px}
+.cmp .lbl{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.lbl.bad{color:var(--bad)}.lbl.ok{color:var(--ok)}.lbl.br{color:var(--brand)}
+mark{background:#FDE68A;border-radius:4px;padding:0 2px;color:inherit}
+s.del{color:var(--bad)}
+/* pron */
+.target{font-size:22px;font-weight:700;line-height:1.35;text-align:center;padding:22px 8px}
+.ipa{font-family:ui-monospace,Menlo,monospace;color:var(--brand-2)}
+.wscore{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0}
+.wscore span{border-radius:10px;padding:6px 10px;font-weight:700;font-size:15px;display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.wscore span small{font-size:10.5px;font-weight:700;opacity:.8}
+.s-ok{background:var(--ok-soft);color:var(--ok)}.s-mid{background:var(--warn-soft);color:var(--warn)}.s-bad{background:var(--bad-soft);color:var(--bad)}
+.bigmic{width:84px;height:84px;border-radius:50%;font-size:34px;margin:6px auto;display:grid;place-items:center}
+.score-big{font-size:46px;font-weight:800;text-align:center;letter-spacing:-.03em}
+.seg{display:flex;background:#E9E4DA;border-radius:12px;padding:3px;gap:3px;margin-bottom:14px}
+.seg button{flex:1;padding:8px 4px;border-radius:9px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:var(--shadow)}
+/* progress */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:12px;text-align:center}
+.stat b{display:block;font-size:22px;font-weight:800}
+.stat span{font-size:11.5px;color:var(--muted);font-weight:600}
+.bars{display:flex;align-items:flex-end;gap:8px;height:130px;padding-top:18px}
+.bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bars .b i{display:block;width:100%;border-radius:8px 8px 3px 3px;background:var(--brand-soft);min-height:4px;position:relative}
+.bars .b i.hit{background:var(--accent)}
+.bars .b em{font-style:normal;font-size:11px;color:var(--muted);font-weight:700}
+.bars .b small{font-size:10.5px;font-weight:700}
+.xpbar{height:10px;background:#EEE9DF;border-radius:9px;overflow:hidden;margin-top:8px}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#FFB066);border-radius:9px}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.badge{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:12px 6px;text-align:center;font-size:11.5px;font-weight:700}
+.badge .em{font-size:26px;display:block;margin-bottom:4px}
+.badge.off{opacity:.38;filter:grayscale(1)}
+.meter{display:flex;align-items:center;gap:10px;margin:6px 0}
+.meter span{width:96px;font-size:13px;font-weight:600}
+.meter .t{flex:1;height:9px;background:#EEE9DF;border-radius:9px;overflow:hidden}
+.meter .t i{display:block;height:100%;background:var(--brand);border-radius:9px}
+.meter b{width:34px;text-align:right;font-size:13px}
+/* vocab */
+.vrow{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:11px 12px;display:flex;gap:10px;align-items:center}
+.vrow .body{flex:1;min-width:0}
+.vrow .body b{font-size:15px}
+.vrow .body div{font-size:13px;color:var(--muted)}
+.vrow .body i{font-size:12.5px;color:#8A8F99}
+.vrow.done b{text-decoration:line-through;opacity:.6}
+.flash{min-height:260px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:10px}
+.flash .w{font-size:30px;font-weight:800}
+/* settings */
+.set{background:var(--card);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.set>div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;border-bottom:1px solid #F0ECE4}
+.set>div:last-child{border-bottom:0}
+.set label{font-weight:600;font-size:14px}
+.set select,.set input[type=time],.set input[type=text]{border:1.5px solid var(--line);border-radius:10px;padding:7px 9px;background:#FAF9F6;max-width:56%}
+.sw{width:46px;height:28px;border-radius:99px;background:#D7D2C8;position:relative;flex:none;transition:.2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px #0003}
+.sw.on{background:var(--ok)}.sw.on::after{left:21px}
+.dev{display:flex;align-items:center;gap:12px;padding:16px;background:var(--card);border-radius:16px;box-shadow:var(--shadow)}
+.status{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.status span{font-size:11.5px;font-weight:700;border-radius:999px;padding:4px 9px}
+.st-on{background:var(--ok-soft);color:var(--ok)}.st-off{background:#EEE9DF;color:var(--muted)}
+/* summary */
+.sumhead{text-align:center;padding:10px 0 4px}
+.sumhead .em{font-size:48px}
+.kv{display:flex;justify-content:center;gap:10px;margin:12px 0}
+ul.clean{list-style:none;display:flex;flex-direction:column;gap:8px}
+ul.clean li{display:flex;gap:10px;align-items:flex-start}
+ul.clean li::before{content:"✦";color:var(--accent);font-weight:800}
+#toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:92%;max-width:440px}
+#toast div{background:#17202F;color:#fff;border-radius:12px;padding:10px 14px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px #0003;animation:up .2s;text-align:center}
+.spin{width:38px;height:38px;border-radius:50%;border:4px solid var(--brand-soft);border-top-color:var(--brand);animation:sp 1s linear infinite;margin:30px auto 14px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.center{text-align:center}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}
+.footer{text-align:center;font-size:11.5px;color:var(--muted);margin-top:26px}
+</style>
+</head>
+<body>
+<div id="app"><div id="screen"></div><nav id="tabs"></nav></div>
+<div id="modal"></div>
+<div id="toast"></div>
+<script>
+"use strict";
+/* ============================================================
+   Papo English — tutor de conversação em inglês com IA
+   DomDevLabs · domdevlabs@gmail.com
+   ============================================================ */
+const VERSION = "1.1.0";
+const SB_URL = "https://hcyvrzjncsfrraadjmvf.supabase.co", SB_KEY = "sb_publishable_DAQltYQi-54Pn3WoNm4Myw_IBMJpUcC";
+const sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
+let SESSION = null, LOADING = true, loadedFor = null;
+const LS_KEY = "papo-english-v1";
+
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-5);
+const pad = n => String(n).padStart(2, "0");
+const dkey = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+const today = () => dkey(new Date());
+const addDays = (key, n) => { const [y, m, d] = key.split("-").map(Number); const x = new Date(y, m - 1, d); x.setDate(x.getDate() + n); return dkey(x); };
+const fmtTime = s => pad(Math.floor(s / 60)) + ":" + pad(s % 60);
+const mins = s => Math.round((s || 0) / 60);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const dayOfYear = () => { const n = new Date(); return Math.floor((n - new Date(n.getFullYear(), 0, 0)) / 864e5); };
+
+/* ---------- conteúdo ---------- */
+const LEVELS = [
+  ["A1", "Iniciante", "Entendo e uso frases bem básicas"],
+  ["A2", "Básico", "Consigo me virar em situações simples"],
+  ["B1", "Intermediário", "Converso sobre temas do dia a dia, com erros"],
+  ["B2", "Intermediário avançado", "Converso com fluidez sobre vários temas"],
+  ["C1", "Avançado", "Me expresso bem, quero refinar"]
+];
+const GOALS = [
+  ["work", "💼", "Trabalho e carreira"],
+  ["exam", "🎯", "Passar em prova (TDIE, IELTS, TOEFL)"],
+  ["travel", "✈️", "Viajar com confiança"],
+  ["conversation", "💬", "Conversar sem travar"],
+  ["study", "🎓", "Estudos e intercâmbio"]
+];
+const CHALLENGES = [
+  ["freeze", "🥶", "Travo na hora de falar"],
+  ["listen", "👂", "Não entendo nativos falando rápido"],
+  ["pron", "🗣️", "Minha pronúncia"],
+  ["vocab", "📖", "Vocabulário limitado"],
+  ["grammar", "🧩", "Gramática"],
+  ["shy", "😳", "Vergonha / medo de errar"]
+];
+const EMPATHY = {
+  freeze: "Travar é normal: seu cérebro está traduzindo do português em tempo real. Falar todo dia, em frases curtas, cria o atalho direto.",
+  listen: "Entender fala rápida é treino de ouvido. Aqui você pode ouvir de novo, desacelerar e traduzir qualquer frase.",
+  pron: "Você vai treinar frase por frase, com nota palavra a palavra e dicas focadas nos sons que mais pegam para brasileiros (TH, R, vogais longas).",
+  vocab: "Toda palavra nova que aparece nas conversas vai direto para o seu vocabulário, com revisão espaçada.",
+  grammar: "Cada frase que você falar é corrigida em segundo plano, com explicação curta em português. Sem interromper a conversa.",
+  shy: "Aqui ninguém está olhando. Pode errar à vontade: é um ambiente sem pressão, no seu ritmo, a qualquer hora."
+};
+const INTERESTS = ["Tecnologia", "Negócios", "Esportes", "Viagens", "Filmes e séries", "Música", "Ciência", "Games", "Culinária", "Aviação", "Saúde e fitness", "Livros", "Política e atualidades", "Carreira militar"];
+
+const SCENARIOS = [
+  {id:"free", cat:"conversa", emoji:"💬", title:"Conversa livre", desc:"Papo sobre seus interesses", role:"Casual, friendly open conversation. Pick topics from the learner's interests and move naturally between them, sharing small opinions of your own."},
+  {id:"intro", cat:"dia", emoji:"👋", title:"Se apresentar", desc:"Conhecendo alguém numa festa", role:"You just met the learner at a friend's party in Chicago. Get to know them: name, work, hometown, hobbies, plans."},
+  {id:"coffee", cat:"dia", emoji:"☕", title:"Pedido no café", desc:"Barista apressado em Nova York", role:"You are a busy but friendly barista in New York. Take the learner's order, ask about size, milk, name for the cup, suggest a pastry, handle payment."},
+  {id:"restaurant", cat:"dia", emoji:"🍽️", title:"Restaurante", desc:"Pedir, perguntar, reclamar", role:"You are a waiter at a restaurant in London. Greet, explain specials, take the order, check on the food, handle a small problem with the dish, bring the bill."},
+  {id:"airport", cat:"dia", emoji:"🛂", title:"Imigração no aeroporto", desc:"Oficial da imigração dos EUA", role:"You are a US immigration officer at JFK airport. Ask the purpose of the trip, length of stay, accommodation, occupation, return ticket. Polite, formal, a bit serious."},
+  {id:"hotel", cat:"dia", emoji:"🏨", title:"Check-in no hotel", desc:"Recepção e problemas no quarto", role:"You are a hotel receptionist in Toronto. Do the check-in, explain breakfast and wifi, then handle a complaint the learner makes about the room."},
+  {id:"directions", cat:"dia", emoji:"🗺️", title:"Pedir informações", desc:"Perdido em Londres", role:"You are a friendly local in London. The learner is lost and asks for directions and tips about transport and places to visit."},
+  {id:"doctor", cat:"dia", emoji:"🩺", title:"Consulta médica", desc:"Descrever sintomas", role:"You are a doctor at a walk-in clinic. The learner is the patient. Ask about symptoms, duration, medication, allergies, then give simple advice."},
+  {id:"shopping", cat:"dia", emoji:"🛍️", title:"Compras e trocas", desc:"Loja de roupas", role:"You are a shop assistant in a clothing store. Help the learner find sizes and colors, then handle an exchange or refund request."},
+  {id:"interview", cat:"business", emoji:"🤝", title:"Entrevista de emprego", desc:"Perguntas comportamentais (STAR)", role:"You are a hiring manager at an international company interviewing the learner for a job in their field. Ask typical interview and behavioral questions one at a time (strengths, weaknesses, a challenge they solved, why this company). Ask follow-ups."},
+  {id:"meeting", cat:"business", emoji:"📊", title:"Reunião de equipe", desc:"Status, prazos e bloqueios", role:"You are the team lead in a weekly status meeting on a video call. Ask the learner for project updates, blockers and deadlines; gently push back and ask for clarification."},
+  {id:"presentation", cat:"business", emoji:"🎤", title:"Apresentar um projeto", desc:"Rodada de perguntas", role:"You are a stakeholder who just watched the learner present a project. Ask them to summarize it, then ask Q&A questions about costs, risks, timeline and results."},
+  {id:"negotiation", cat:"business", emoji:"💰", title:"Negociação com fornecedor", desc:"Preço, prazo e condições", role:"You are a sales representative of a supplier negotiating with the learner, who is a buyer (procurement). Discuss price, delivery time, warranty and payment terms; resist discounts at first."},
+  {id:"smalltalk", cat:"business", emoji:"🌐", title:"Small talk no trabalho", desc:"Antes da call começar", role:"You are a coworker from another country chatting with the learner a few minutes before a video meeting starts: weekend, weather, travel, work news."},
+  {id:"ielts", cat:"exam", exam:true, emoji:"🎓", title:"Simulado IELTS Speaking", desc:"Parts 1, 2 e 3", role:"You are an official-style IELTS Speaking examiner. Run Part 1 (four short questions on familiar topics), then Part 2 (give a cue card topic with 3 bullet points and tell the learner to speak for 1-2 minutes), then Part 3 (two or three abstract discussion questions linked to Part 2). Ask ONE question per turn and briefly announce each part. Neutral examiner tone, no feedback during the test."},
+  {id:"toefl", cat:"exam", exam:true, emoji:"📝", title:"Simulado TOEFL Speaking", desc:"Tarefas independentes e integradas", role:"You are running a TOEFL iBT Speaking style practice. Start with an independent task (state an opinion and give reasons). Then do integrated-style tasks: briefly describe a short campus situation or lecture point in 2-3 sentences and ask the learner to respond or summarize. One task per turn, neutral tone, no feedback during the test."},
+  {id:"tdie", cat:"exam", exam:true, emoji:"✈️", title:"Simulado oral estilo TDIE", desc:"Entrevista militar, meta B2", role:"You are an oral English interviewer for military personnel of the Brazilian Air Force (target CEFR B2). Ask about the learner's job and unit routine, past experiences (missions, training, trips), opinions on aviation, defense and current topics, and one hypothetical situation. Gradually increase complexity. One question per turn, formal and polite tone, no feedback during the interview."}
+];
+const CATS = {conversa:"Conversa", dia:"Dia a dia", business:"Business English", exam:"Simulados de prova"};
+
+const DAILY_Q = [
+  "What's something you learned recently that surprised you?",
+  "If you could live in any city in the world for a year, where would you go and why?",
+  "What does a perfect weekend look like for you?",
+  "What's the best piece of advice you've ever received?",
+  "Tell me about a skill you'd love to master.",
+  "What's a movie or series you'd recommend, and why?",
+  "How has technology changed the way you work?",
+  "Describe a person who has influenced you a lot.",
+  "What would you do with an extra hour every day?",
+  "What's a tradition from your city or family that you enjoy?",
+  "What's the most interesting place you've ever visited?",
+  "Do you prefer working alone or in a team? Why?",
+  "What's a goal you want to achieve this year?",
+  "If you could have dinner with anyone, who would it be?",
+  "What's a common mistake people make when learning languages?",
+  "How do you usually deal with stress?",
+  "What's your favorite food, and could you explain how to make it?",
+  "What job would you choose if money didn't matter?",
+  "Tell me about a challenge you overcame.",
+  "What's something you'd like to change in your city?",
+  "What makes a good leader, in your opinion?",
+  "Describe your typical morning routine.",
+  "What's the best gift you've ever given or received?",
+  "Should kids learn to code at school? Why or why not?",
+  "What hobby would you like to start?",
+  "How do you imagine your life in ten years?",
+  "What's a small thing that makes you happy?",
+  "Is it better to travel alone or with friends?",
+  "What's an app you can't live without?",
+  "Tell me about the last time you laughed a lot."
+];
+
+const PRON_LEVEL = {
+  A1: ["Hello, my name is Ana.", "I live in a big city.", "I like coffee in the morning.", "Where is the bathroom, please?", "I have two brothers and one sister.", "What time is it now?", "Nice to meet you."],
+  A2: ["I usually go to work by bus.", "Could you speak more slowly, please?", "Last weekend I visited my parents.", "I would like a table for two.", "How much does this jacket cost?", "I'm looking forward to my vacation.", "It was raining all day yesterday."],
+  B1: ["I've been working here for almost three years.", "If I had more time, I would travel more often.", "Could you tell me how to get to the station?", "I think the meeting went really well.", "We should probably leave before the traffic gets worse.", "She asked me whether I had finished the report.", "I'm not used to waking up so early."],
+  B2: ["Despite the delay, the project was delivered on time.", "I'd rather discuss this in person than over email.", "Had I known about the changes, I would have prepared better.", "The results were far more encouraging than we expected.", "It's worth considering the long-term consequences.", "Our main priority is to reduce costs without affecting quality.", "I couldn't agree more with your point of view."],
+  C1: ["The committee is expected to reach a decision by the end of the quarter.", "Notwithstanding the challenges, the team remained remarkably committed.", "It's hardly surprising that the proposal met with resistance.", "We need a thorough analysis before drawing any conclusions.", "The data suggests a correlation rather than a causal relationship.", "I'd like to elaborate on a point that was raised earlier.", "Had it not been for her guidance, we would have struggled."]
+};
+const PRON_HARD = [
+  "Think about three thousand things.", "The weather this Thursday is better than the other day.", "I live in a little village.", "Ship or sheep? Sit in this seat.",
+  "World, word, work and walk.", "The rural road was really rough.", "These comfortable vegetables are in the kitchen.", "I hope you have a happy holiday.",
+  "She said she would send the schedule on Wednesday.", "Their clothes are over there.", "I can't believe it's already eight thirty.", "The thirty-third birthday was on a Thursday."
+];
+
+const BADGES = [
+  {id:"first", em:"🎙️", name:"Primeira conversa", test:() => S.sessions.length >= 1},
+  {id:"s10", em:"🗣️", name:"10 conversas", test:() => S.sessions.length >= 10},
+  {id:"goal", em:"✅", name:"Meta do dia", test:() => todaySec() >= S.profile.dailyMin * 60},
+  {id:"st3", em:"🔥", name:"3 dias seguidos", test:() => streak() >= 3},
+  {id:"st7", em:"⚡", name:"7 dias seguidos", test:() => streak() >= 7},
+  {id:"st30", em:"🏆", name:"30 dias seguidos", test:() => streak() >= 30},
+  {id:"w25", em:"📚", name:"25 palavras", test:() => S.vocab.length >= 25},
+  {id:"w100", em:"🧠", name:"100 palavras", test:() => S.vocab.length >= 100},
+  {id:"p90", em:"🎯", name:"Pronúncia 90+", test:() => S.pronBest >= 90},
+  {id:"exam", em:"🎓", name:"Fez um simulado", test:() => S.sessions.some(s => s.exam)},
+  {id:"biz", em:"💼", name:"Business English", test:() => S.sessions.some(s => s.cat === "business")},
+  {id:"lvl5", em:"⭐", name:"Nível 5", test:() => level() >= 5}
+];
+
+/* ---------- estado ---------- */
+function defState() {
+  return {
+    ver: 1, onboarded: false, updatedAt: 0,
+    profile: {name: "", goal: "conversation", level: "B1", challenges: [], interests: [], dailyMin: 10, remind: "19:00", autoplay: true, voice: "buttery", rate: 1},
+    xp: 0, days: {}, sessions: [], vocab: [], errStats: {}, badges: [], pronBest: 0, pronCount: 0,
+    placement: null, goalToast: ""
+  };
+}
+let S = defState();
+function hydrate(obj) {
+  const d = defState();
+  const s = Object.assign(d, obj || {});
+  s.profile = Object.assign(defState().profile, (obj && obj.profile) || {});
+  ["days", "errStats"].forEach(k => { if (!s[k] || typeof s[k] !== "object") s[k] = {}; });
+  ["sessions", "vocab", "badges"].forEach(k => { if (!Array.isArray(s[k])) s[k] = []; });
+  return s;
+}
+function lsKey() { return LS_KEY + ":" + (SESSION ? SESSION.user.id : "anon"); }
+function loadLocal() { S = defState(); try { const r = localStorage.getItem(lsKey()); if (r) S = hydrate(JSON.parse(r)); } catch (e) {} }
+function trimmed() {
+  const c = JSON.parse(JSON.stringify(S));
+  c.sessions = c.sessions.slice(0, 60).map((s, i) => { if (i >= 8) delete s.msgs; return s; });
+  c.vocab = c.vocab.slice(0, 1000);
+  if (JSON.stringify(c).length > 230000) { c.sessions.forEach(s => delete s.msgs); c.sessions = c.sessions.slice(0, 25); }
+  if (JSON.stringify(c).length > 230000) { c.vocab = c.vocab.slice(0, 500); }
+  return c;
+}
+let saveTimer = null, dbBusy = false, dbAgain = false;
+function save() {
+  S.updatedAt = Date.now();
+  try { localStorage.setItem(lsKey(), JSON.stringify(S)); } catch (e) {}
+  if (CAP.ref) { clearTimeout(saveTimer); saveTimer = setTimeout(flushDb, 2500); }
+}
+async function flushDb() {
+  if (!CAP.ref || !SESSION) return;
+  if (dbBusy) { dbAgain = true; return; }
+  dbBusy = true;
+  try {
+    const {error} = await sb.from("papo_estado").upsert({user_id: SESSION.user.id, dados: trimmed(), atualizado_em: new Date().toISOString()});
+    if (error) throw error;
+    CAP.synced = true;
+  } catch (e) { CAP.synced = false; }
+  dbBusy = false;
+  if (dbAgain) { dbAgain = false; flushDb(); }
+}
+
+/* ---------- capacidades: login, IA (servidor), microfone e voz do navegador ---------- */
+const CAP = {sample: null, tts: null, dict: null, ref: null, synced: false, ready: false, speaking: false};
+const DICT = {target: null, base: "", partial: "", listening: false, was: false};
+function withTimeout(p, ms) { return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej({code: "timeout"}), ms))]); }
+
+/* IA: chama /api/ai (Vercel AI Gateway), só para usuário logado */
+async function aiCall(input, o) {
+  o = o || {};
+  const messages = typeof input === "string" ? [{role: "user", content: input}] : input;
+  const {data} = await sb.auth.getSession();
+  const session = data && data.session;
+  if (!session) throw {code: "no_session"};
+  let r;
+  try {
+    r = await fetch("/api/ai", {method: "POST", headers: {"Content-Type": "application/json", Authorization: "Bearer " + session.access_token},
+      body: JSON.stringify({messages, json: !!o.json, task: o.task || (o.modelTier === "default" ? "summary" : "chat")})});
+  } catch (e) { throw {code: "offline"}; }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw {code: j.code || (r.status === 429 ? "rate_limited" : "error"), message: j.error || ""};
+  return {text: j.text || ""};
+}
+
+/* Microfone: Web Speech API (Chrome Android/PC, Safari iPhone/Mac, Edge) */
+function makeDictation() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const h = {p: null, f: null, s: null};
+  let rec = null, stopping = null;
+  return {
+    onPartial(f) { h.p = f; }, onFinal(f) { h.f = f; }, onState(f) { h.s = f; },
+    start() {
+      return new Promise((resolve, reject) => {
+        try {
+          rec = new SR();
+          rec.lang = "en-US"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+          let started = false;
+          rec.onstart = () => { started = true; if (h.s) h.s({state: "listening"}); resolve(); };
+          rec.onresult = e => {
+            let interim = "";
+            for (let i = e.resultIndex; i < e.results.length; i++) {
+              const r = e.results[i];
+              if (r.isFinal) { if (h.f) h.f({text: r[0].transcript}); } else interim += r[0].transcript;
+            }
+            if (h.p) h.p({text: interim});
+          };
+          rec.onerror = e => { if (!started) reject({code: (e.error === "not-allowed" || e.error === "service-not-allowed") ? "not_granted" : "error"}); else if (e.error === "not-allowed") reject({code: "not_granted"}); };
+          rec.onend = () => { rec = null; if (h.s) h.s({state: "idle", reason: "stopped"}); if (stopping) { stopping(); stopping = null; } };
+          rec.start();
+        } catch (e) { reject({code: "error"}); }
+      });
+    },
+    stop() { return new Promise(r => { if (!rec) return r(); stopping = r; try { rec.stop(); } catch (e) { r(); } }); }
+  };
+}
+
+function initCaps() {
+  const dict = makeDictation();
+  CAP.dict = dict;
+  if (dict) {
+    dict.onPartial(({text}) => { DICT.partial = text || ""; applyDict(); });
+    dict.onFinal(({text}) => { DICT.base = (DICT.base + " " + (text || "")).trim(); DICT.partial = ""; applyDict(); });
+    dict.onState(({state}) => {
+      DICT.listening = state === "listening";
+      if (DICT.listening) DICT.was = true;
+      updateMicUI();
+      if (state === "idle" && DICT.was) { DICT.was = false; onDictEnd(); }
+    });
+  }
+}
+
+/* Login (Supabase Auth — mesmo projeto, dados independentes em papo_*) */
+async function setSession(session) {
+  SESSION = session || null;
+  if (!SESSION) { CAP.sample = null; CAP.ref = null; CAP.ready = true; LOADING = false; loadedFor = null; view = "login"; render(); return; }
+  CAP.sample = aiCall; CAP.ref = true; CAP.ready = true;
+  if (loadedFor === SESSION.user.id) return;
+  loadedFor = SESSION.user.id;
+  LOADING = true; render();
+  loadLocal();
+  try {
+    const {data, error} = await withTimeout(sb.from("papo_estado").select("dados, atualizado_em").eq("user_id", SESSION.user.id).maybeSingle(), 10000);
+    if (error) throw error;
+    if (data && data.dados) {
+      const remote = hydrate(data.dados);
+      if ((remote.updatedAt || 0) > (S.updatedAt || 0)) { S = remote; try { localStorage.setItem(lsKey(), JSON.stringify(S)); } catch (e) {} }
+      CAP.synced = true;
+    } else if (S.onboarded) flushDb();
+  } catch (e) { CAP.synced = false; }
+  LOADING = false;
+  if (!S.onboarded) {
+    const meta = SESSION.user.user_metadata || {};
+    if (!OB.d.name) OB.d.name = String(meta.full_name || meta.name || "").split(" ")[0] || "";
+    view = "onb";
+  } else if (["login", "onb", "loading"].includes(view)) view = "home";
+  render();
+}
+function refreshIfIdle() { if (["home", "practice", "vocab", "progress", "profile", "onb"].includes(view)) render(); }
+
+/* ---------- voz (síntese do navegador) ---------- */
+let sysVoice = null;
+function enVoices() { try { return (speechSynthesis.getVoices() || []).filter(v => /^en/i.test(v.lang)); } catch (e) { return []; } }
+function pickVoice() {
+  if (!("speechSynthesis" in window)) return null;
+  const vs = enVoices();
+  if (S.profile.voice) { const v = vs.find(x => x.name === S.profile.voice); if (v) return v; }
+  return vs.find(v => /^en[-_]US/i.test(v.lang) && /natural|google|samantha|aria|jenny|ava|enhanced|premium/i.test(v.name)) || vs.find(v => /^en[-_]US/i.test(v.lang)) || vs[0] || null;
+}
+try { if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => { sysVoice = pickVoice(); if (view === "profile") render(); }; } catch (e) {}
+/* iPhone: libera a voz no primeiro toque */
+let voiceUnlocked = false;
+document.addEventListener("pointerdown", () => { if (voiceUnlocked || !("speechSynthesis" in window)) return; voiceUnlocked = true; try { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u); } catch (e) {} }, {capture: true});
+function canSpeak() { return "speechSynthesis" in window; }
+function stopSpeak() { try { if ("speechSynthesis" in window) speechSynthesis.cancel(); } catch (e) {} CAP.speaking = false; }
+async function speak(text, opts) {
+  text = String(text || "").slice(0, 1900);
+  if (!text || !("speechSynthesis" in window)) return;
+  const rate = (opts && opts.rate) || S.profile.rate || 1;
+  stopSpeak();
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = clamp(rate, 0.5, 1.5);
+    const v = pickVoice(); if (v) { u.voice = v; u.lang = v.lang; }
+    u.onstart = () => { CAP.speaking = true; }; u.onend = u.onerror = () => { CAP.speaking = false; };
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+/* ---------- microfone (ditado) ---------- */
+function micToggle(target) {
+  if (!CAP.dict) { toast("Seu navegador não reconhece voz. Use o Chrome (Android/PC) ou o Safari (iPhone). Por enquanto, digite sua resposta."); return; }
+  if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} return; }
+  stopSpeak();
+  DICT.target = target;
+  const inp = target === "chat" ? $("#chatInput") : target === "place" ? $("#placeAns") : null;
+  DICT.base = inp ? inp.value.trim() : "";
+  DICT.partial = "";
+  if (target === "pron") { PR.heard = ""; const h = $("#pronHeard"); if (h) h.textContent = "Ouvindo…"; }
+  let p;
+  try { p = CAP.dict.start(); } catch (e) { toast("Não consegui abrir o microfone."); return; }
+  Promise.resolve(p).catch(e => {
+    const c = e && e.code;
+    if (c === "not_granted") { CAP.dict = null; toast("Permissão de microfone negada. Você pode continuar digitando."); render(); }
+    else if (c !== "dismissed") toast("Não consegui abrir o microfone.");
+  });
+}
+function applyDict() {
+  const t = (DICT.base + " " + DICT.partial).trim();
+  if (DICT.target === "chat") { const el = $("#chatInput"); if (el) { el.value = t; autoGrow(el); } }
+  else if (DICT.target === "place") { const el = $("#placeAns"); if (el) el.value = t; }
+  else if (DICT.target === "pron") { const el = $("#pronHeard"); if (el) el.textContent = t || "Ouvindo…"; }
+}
+function updateMicUI() {
+  document.querySelectorAll("[data-mic]").forEach(b => {
+    b.classList.toggle("live", DICT.listening && b.dataset.mic === DICT.target);
+    if (b.dataset.lbl) b.innerHTML = DICT.listening && b.dataset.mic === DICT.target ? "⏹" : "🎤";
+  });
+  const hint = $("#micHint"); if (hint) hint.textContent = DICT.listening ? "Ouvindo… toque de novo para parar" : "";
+}
+function onDictEnd() {
+  if (DICT.target === "chat" && view === "chat") { const el = $("#chatInput"); if (el && el.value.trim()) sendChat(); }
+  else if (DICT.target === "pron" && view === "pron") { evaluatePron((DICT.base + " " + DICT.partial).trim()); }
+}
+
+/* ---------- IA ---------- */
+function aiErr(e) {
+  const c = e && e.code;
+  if (c === "rate_limited") return "Muitas mensagens seguidas. Espere alguns segundos e tente de novo.";
+  if (c === "no_ai" || c === "no_session") return "Entre na sua conta para conversar com a IA.";
+  if (c === "daily_limit") return "Você atingiu o limite diário de mensagens da IA. Volte amanhã!";
+  if (c === "offline") return "Sem conexão com a internet. Tente de novo.";
+  return "Não consegui responder agora. Toque para tentar de novo.";
+}
+function parseJSON(t) {
+  t = String(t || "").replace(/```json/gi, "").replace(/```/g, "");
+  const a = t.indexOf("{"), b = t.lastIndexOf("}");
+  if (a < 0 || b < a) throw {code: "bad_json"};
+  return JSON.parse(t.slice(a, b + 1));
+}
+async function askJSON(prompt, tier) {
+  if (!CAP.sample) throw {code: "no_ai"};
+  const opts = {modelTier: tier || "quick", cache: false};
+  if (typeof CAP.sample.json === "function") {
+    try { const v = await CAP.sample.json(prompt, opts); if (v && typeof v === "object") return v; }
+    catch (e) { const c = e && e.code; if (c === "not_granted" || c === "rate_limited") throw e; }
+  }
+  const r = await CAP.sample(prompt + "\n\nRespond with valid JSON only, no code fences, no extra text.", Object.assign({json: true}, opts));
+  return parseJSON(r && r.text);
+}
+async function askText(prompt, tier) {
+  if (!CAP.sample) throw {code: "no_ai"};
+  const r = await CAP.sample(prompt, {modelTier: tier || "quick", cache: false});
+  return String((r && r.text) || "").trim();
+}
+function learnerCtx() {
+  const p = S.profile;
+  const goal = (GOALS.find(g => g[0] === p.goal) || GOALS[3])[2];
+  return `Learner: ${p.name || "the learner"}, Brazilian, CEFR level ${p.level}. Goal: ${goal}. Interests: ${(p.interests || []).join(", ") || "general topics"}.`;
+}
+
+/* ---------- gamificação / tempo ---------- */
+function todaySec() { return S.days[today()] || 0; }
+function level() { return Math.floor(S.xp / 200) + 1; }
+function streak() {
+  let k = today(), n = 0;
+  if ((S.days[k] || 0) < 60) k = addDays(k, -1);
+  while ((S.days[k] || 0) >= 60) { n++; k = addDays(k, -1); }
+  return n;
+}
+function addXP(n) {
+  const before = level();
+  S.xp += n;
+  if (level() > before) toast("⭐ Subiu para o nível " + level() + "!");
+}
+function checkBadges() {
+  BADGES.forEach(b => {
+    if (!S.badges.includes(b.id)) { try { if (b.test()) { S.badges.push(b.id); toast(b.em + " Conquista: " + b.name); } } catch (e) {} }
+  });
+}
+let lastInteract = Date.now(), tick = 0;
+["pointerdown", "keydown", "input"].forEach(ev => document.addEventListener(ev, () => { lastInteract = Date.now(); }, true));
+setInterval(() => {
+  if (document.hidden) return;
+  if (!["chat", "pron", "review"].includes(view)) return;
+  const active = Date.now() - lastInteract < 90000 || DICT.listening || CAP.speaking;
+  if (active) {
+    const k = today();
+    S.days[k] = (S.days[k] || 0) + 1;
+    tick++;
+    if (S.goalToast !== k && S.days[k] >= S.profile.dailyMin * 60) { S.goalToast = k; toast("✅ Meta do dia batida! Mandou bem."); addXP(15); checkBadges(); save(); }
+    if (tick % 30 === 0) save();
+  }
+  if (view === "chat" && CH) { const el = $("#chatTimer"); if (el) el.textContent = fmtTime(Math.floor((Date.now() - CH.start) / 1000)); }
+}, 1000);
+document.addEventListener("visibilitychange", () => { if (document.hidden) { save(); flushDb(); } });
+
+/* ---------- vocabulário ---------- */
+const BOXES = [1, 3, 7, 14, 30];
+function addVocab(en, pt, ex, src) {
+  en = String(en || "").trim(); if (!en || en.length > 80) return false;
+  const k = en.toLowerCase();
+  if (S.vocab.some(v => v.en.toLowerCase() === k)) return false;
+  S.vocab.unshift({id: uid(), en, pt: String(pt || "").trim(), ex: String(ex || "").trim(), src: src || "manual", added: today(), box: 0, due: today(), learned: false});
+  return true;
+}
+function dueVocab() { const t = today(); return S.vocab.filter(v => !v.learned && v.due <= t); }
+
+/* ---------- UI helpers ---------- */
+function toast(msg) {
+  const box = $("#toast"); const d = document.createElement("div"); d.textContent = msg; box.appendChild(d);
+  setTimeout(() => d.remove(), 3200);
+}
+function sheet(html) { $("#modal").innerHTML = `<div class="back" onclick="if(event.target===this)A.close()"><div class="sheet"><div class="grab"></div>${html}</div></div>`; }
+function closeSheet() { $("#modal").innerHTML = ""; }
+function confirmBox(msg, yesLabel, onYes) {
+  window.__yes = () => { closeSheet(); onYes(); };
+  sheet(`<h3 class="mb12">${esc(msg)}</h3><div class="row-flex"><button class="btn ghost block" onclick="A.close()">Cancelar</button><button class="btn block" onclick="__yes()">${esc(yesLabel)}</button></div>`);
+}
+function autoGrow(el) { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 120) + "px"; }
+const LOGO = `<svg viewBox="0 0 64 64" width="100%" height="100%"><rect x="2" y="6" width="50" height="40" rx="14" fill="#2B59E6"/><path d="M14 46 L10 58 L26 46Z" fill="#2B59E6"/><rect x="22" y="18" width="40" height="32" rx="12" fill="#FF7A1A"/><path d="M50 50 L56 60 L42 50Z" fill="#FF7A1A"/><text x="16" y="31" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="13" fill="#fff">Hi</text><text x="31" y="39" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="12" fill="#fff">Oi!</text></svg>`;
+const DEVLOGO = `<svg viewBox="0 0 40 40" width="40" height="40"><circle cx="20" cy="20" r="15" fill="none" stroke="#FF7A1A" stroke-width="6" stroke-dasharray="5 3.2"/><circle cx="20" cy="20" r="11.5" fill="#1E3A8A"/><text x="20" y="23.5" text-anchor="middle" font-size="9" font-weight="800" fill="#fff" font-family="ui-monospace,monospace">&lt;/&gt;</text></svg>`;
+
+/* ============================================================
+   ROTEAMENTO
+   ============================================================ */
+let view = "loading";
+const VIEWS = {};
+let RECOVERY = false;
+const baseURL = () => location.href.split("#")[0].split("?")[0];
+function lmsg(t, err) { const el = $("#lmsg"); if (el) { el.textContent = t; el.className = "banner mt12 " + (err ? "warn" : "info"); el.style.display = "block"; } }
+const TABS = [["home", "🏠", "Início"], ["practice", "🎯", "Praticar"], ["vocab", "📚", "Vocabulário"], ["progress", "📈", "Progresso"], ["profile", "👤", "Perfil"]];
+function go(v) { view = v; closeSheet(); render(); window.scrollTo(0, 0); }
+function render() {
+  if (LOADING) view = "loading";
+  else if (RECOVERY) view = "newpass";
+  else if (!SESSION) view = "login";
+  else if (!S.onboarded && view !== "onb") view = "onb";
+  const pa = $("#placeAns"); if (pa && OB && OB.place) OB.place.ans[OB.place.i] = pa.value;
+  const scr = $("#screen");
+  const fn = VIEWS[view] || VIEWS.home;
+  scr.className = ["chat"].includes(view) ? "full" : "";
+  scr.innerHTML = fn();
+  const isTab = TABS.some(t => t[0] === view);
+  const tabs = $("#tabs");
+  tabs.style.display = isTab ? "flex" : "none";
+  tabs.innerHTML = TABS.map(t => `<button class="${view === t[0] ? "on" : ""}" onclick="A.go('${t[0]}')"><span class="ic">${t[1]}</span>${t[2]}</button>`).join("");
+  if (view === "chat") { renderMsgs(); const el = $("#chatInput"); if (el) { el.addEventListener("input", () => autoGrow(el)); el.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); A.send(); } }); } }
+  updateMicUI();
+}
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+VIEWS.loading = () => `<div class="center" style="padding-top:120px"><div style="width:84px;height:84px;margin:0 auto">${LOGO}</div><div class="spin"></div><p class="muted small">Carregando…</p></div>`;
+VIEWS.login = () => `<div class="hero" style="padding-top:24px"><div class="logo">${LOGO}</div><h1>Papo English</h1><p class="muted mt8">Converse em inglês com IA, por voz. Correção em português, pronúncia palavra por palavra e simulados. <b>Grátis.</b></p></div>
+  <div class="card mt16">
+    <button class="btn block ghost" style="background:#fff" onclick="A.google()"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Entrar com Google</button>
+    <div class="row-flex mt12 mb12"><div style="flex:1;height:1px;background:var(--line)"></div><span class="small muted">ou com e-mail</span><div style="flex:1;height:1px;background:var(--line)"></div></div>
+    <input id="le" class="field mb8" type="email" autocomplete="email" placeholder="Seu e-mail">
+    <input id="lp" class="field" type="password" autocomplete="current-password" placeholder="Senha" onkeydown="if(event.key==='Enter')A.login()">
+    <div class="row-flex mt12"><button class="btn block" onclick="A.login()">Entrar</button><button class="btn sec block" onclick="A.signup()">Criar conta</button></div>
+    <button class="small muted mt12" style="text-decoration:underline" onclick="A.forgot()">Esqueci minha senha</button>
+    <div id="lmsg" class="banner info mt12" style="display:none"></div>
+  </div>
+  <p class="small muted center mt16">Seu progresso fica salvo na sua conta e aparece em qualquer aparelho.</p>
+  <div class="footer">Papo English v${VERSION} · Desenvolvido por DomDevLabs · domdevlabs@gmail.com</div>`;
+VIEWS.newpass = () => `<div class="hero"><div class="logo">${LOGO}</div><h1>Nova senha</h1><p class="muted mt8">Digite sua nova senha.</p></div><div class="card mt16"><input id="np" class="field" type="password" placeholder="Nova senha (mín. 6 caracteres)"><button class="btn block mt12" onclick="A.newPass()">Salvar senha</button><div id="lmsg" class="banner info mt12" style="display:none"></div></div>`;
+
+/* ============================================================
+   ONBOARDING
+   ============================================================ */
+const PLACE_Q = [
+  "Hi! Tell me a little about yourself: who are you and what do you do?",
+  "What did you do last weekend? Tell me some details.",
+  "If you could change one thing about your city, what would it be and why?"
+];
+let OB = {step: 0, d: {name: "", goal: "", level: "", challenges: [], interests: [], dailyMin: 10, remind: "19:00"}, place: {i: 0, ans: [], busy: false, result: null}};
+const OB_TOTAL = 10;
+function obFrame(inner, foot) {
+  const pct = Math.round(OB.step / OB_TOTAL * 100);
+  return `<div class="onb">${OB.step > 0 ? `<div class="row-flex"><button class="iconbtn" onclick="A.obBack()">←</button><div class="prog" style="flex:1;margin:0"><i style="width:${pct}%"></i></div></div><div style="height:20px"></div>` : ""}<div class="content">${inner}</div><div class="foot">${foot}</div></div>`;
+}
+VIEWS.onb = () => {
+  const d = OB.d, s = OB.step;
+  if (s === 0) return obFrame(`<div class="hero"><div class="logo">${LOGO}</div><h1>Papo English</h1><p class="muted mt8">Seu parceiro de conversa em inglês, 24 horas por dia. Fale, erre sem medo e receba correção na hora.</p>
+    <div class="list mt16" style="text-align:left">
+      <div class="item"><span class="em">🎙️</span><div class="body"><b>Converse por voz</b><span>Situações reais: entrevista, reunião, viagem, provas</span></div></div>
+      <div class="item"><span class="em">✏️</span><div class="body"><b>Correção em português</b><span>Gramática, jeito nativo de dizer e explicação curta</span></div></div>
+      <div class="item"><span class="em">🎯</span><div class="body"><b>Pronúncia palavra a palavra</b><span>Nota por palavra e dicas para brasileiros</span></div></div>
+    </div></div>`, `<button class="btn block orange" onclick="A.obNext()">Começar</button>`);
+  if (s === 1) return obFrame(`<h1>Como posso te chamar?</h1><p class="muted mt8 mb12">Vou usar seu nome nas conversas.</p><input id="obName" class="field" placeholder="Seu nome" value="${esc(d.name)}" oninput="OB.d.name=this.value">`, `<button class="btn block" onclick="A.obNext()">Continuar</button>`);
+  if (s === 2) return obFrame(`<h1>Por que você quer falar inglês?</h1><p class="muted mt8 mb12">Assim eu escolho as melhores situações para você.</p>${GOALS.map(g => `<button class="opt ${d.goal === g[0] ? "on" : ""}" onclick="A.obSet('goal','${g[0]}')"><span class="em">${g[1]}</span>${esc(g[2])}</button>`).join("")}`, `<button class="btn block" ${d.goal ? "" : "disabled"} onclick="A.obNext()">Continuar</button>`);
+  if (s === 3) return obFrame(`<h1>Qual é o seu nível hoje?</h1><p class="muted mt8 mb12">Chute mesmo. Daqui a pouco a gente confirma ouvindo você.</p>${LEVELS.map(l => `<button class="opt ${d.level === l[0] ? "on" : ""}" onclick="A.obSet('level','${l[0]}')"><span class="tag">${l[0]}</span><div>${esc(l[1])}<small>${esc(l[2])}</small></div></button>`).join("")}`, `<button class="btn block" ${d.level ? "" : "disabled"} onclick="A.obNext()">Continuar</button>`);
+  if (s === 4) return obFrame(`<h1>O que mais te atrapalha?</h1><p class="muted mt8 mb12">Pode marcar mais de um.</p>${CHALLENGES.map(c => `<button class="opt ${d.challenges.includes(c[0]) ? "on" : ""}" onclick="A.obToggle('challenges','${c[0]}')"><span class="em">${c[1]}</span>${esc(c[2])}</button>`).join("")}`, `<button class="btn block" ${d.challenges.length ? "" : "disabled"} onclick="A.obNext()">Continuar</button>`);
+  if (s === 5) return obFrame(`<h1>Você não está sozinho 💙</h1><p class="muted mt8 mb12">A maioria dos brasileiros que estudam inglês sente exatamente isso. Veja como vamos atacar cada ponto:</p><div class="list">${d.challenges.map(k => { const c = CHALLENGES.find(x => x[0] === k); return `<div class="card"><h3>${c[1]} ${esc(c[2])}</h3><p class="small muted mt8">${esc(EMPATHY[k])}</p></div>`; }).join("")}</div>`, `<button class="btn block" onclick="A.obNext()">Entendi, vamos lá</button>`);
+  if (s === 6) return obFrame(`<h1>Sobre o que você gosta de conversar?</h1><p class="muted mt8 mb12">Escolha pelo menos 2 temas.</p><div class="chips">${INTERESTS.map(i => `<button class="opt ${d.interests.includes(i) ? "on" : ""}" onclick="A.obToggle('interests',${JSON.stringify(i).replace(/"/g, "&quot;")})">${esc(i)}</button>`).join("")}</div>`, `<button class="btn block" ${d.interests.length >= 2 ? "" : "disabled"} onclick="A.obNext()">Continuar</button>`);
+  if (s === 7) return obPlacement();
+  if (s === 8) {
+    const opts = [5, 10, 15, 20, 30];
+    const maxH = 30 * 90 / 60;
+    return obFrame(`<h1>Quanto tempo por dia?</h1><p class="muted mt8">Pouco todo dia vence muito de vez em quando.</p>
+      <div class="proj">${opts.map(o => { const h = Math.round(o * 90 / 60); return `<div class="${d.dailyMin === o ? "on" : ""}" style="height:${Math.max(12, h / maxH * 100)}%"><span>${h}h</span></div>`; }).join("")}</div>
+      <div class="proj-l">${opts.map(o => `<span>${o} min</span>`).join("")}</div>
+      <p class="small muted center mt8">Horas falando inglês em 3 meses</p>
+      <div class="chips mt16" style="justify-content:center">${opts.map(o => `<button class="opt ${d.dailyMin === o ? "on" : ""}" onclick="A.obSet('dailyMin',${o})">${o} min/dia</button>`).join("")}</div>
+      <div class="banner info mt16">Com <b>${d.dailyMin} min por dia</b>, em 3 meses são <b>${Math.round(d.dailyMin * 90 / 60)} horas</b> de conversa real, só você falando.</div>`, `<button class="btn block" onclick="A.obNext()">Continuar</button>`);
+  }
+  if (s === 9) return obFrame(`<h1>Que horas você quer praticar?</h1><p class="muted mt8 mb12">Quando você abrir o app depois desse horário sem ter batido a meta, eu te lembro.</p><input type="time" class="field" value="${esc(d.remind)}" onchange="OB.d.remind=this.value" style="font-size:22px;text-align:center">
+    <p class="small muted mt12">Dica: crie também um alarme no celular nesse horário com o nome "Papo English".</p>`, `<button class="btn block" onclick="A.obNext()">Continuar</button>`);
+  return obFrame(`<div class="hero"><div style="font-size:64px">🎉</div><h1 class="mt8">Tudo pronto, ${esc(d.name || "aluno")}!</h1><p class="muted mt8">Nível <b>${esc(d.level)}</b> · meta de <b>${d.dailyMin} min/dia</b></p>
+    ${OB.place.result ? `<div class="card mt16" style="text-align:left"><h3>Resultado do nivelamento: <span class="tag orange">${esc(OB.place.result.level)}</span></h3><p class="small muted mt8">${esc(OB.place.result.reason_pt || "")}</p></div>` : ""}
+    <p class="muted mt16">Sua primeira conversa já está te esperando.</p></div>`, `<button class="btn block orange" onclick="A.obFinish()">Ir para o app</button>`);
+};
+function obPlacement() {
+  const P = OB.place;
+  if (!CAP.sample && CAP.ready) return obFrame(`<h1>Teste de nivelamento</h1><div class="banner warn mt12">A IA não está disponível agora, então vou usar o nível que você escolheu (${esc(OB.d.level)}). Dá para refazer o teste depois no Perfil.</div>`, `<button class="btn block" onclick="A.obNext()">Continuar</button>`);
+  if (P.result) return obFrame(`<h1>Seu nível estimado</h1><div class="card mt16 center"><div style="font-size:48px;font-weight:800;color:var(--brand)">${esc(P.result.level)}</div><p class="muted">${esc((LEVELS.find(l => l[0] === P.result.level) || ["", ""])[1])}</p><p class="small mt12" style="text-align:left">${esc(P.result.reason_pt || "")}</p>
+    ${(P.result.strengths || []).length ? `<p class="small mt12" style="text-align:left"><b>Pontos fortes:</b> ${esc(P.result.strengths.join("; "))}</p>` : ""}
+    ${(P.result.focus || []).length ? `<p class="small mt8" style="text-align:left"><b>Focar em:</b> ${esc(P.result.focus.join("; "))}</p>` : ""}</div>`,
+    `<button class="btn block" onclick="A.obNext()">Usar ${esc(P.result.level)} e continuar</button>`);
+  if (P.busy) return obFrame(`<div class="center"><div class="spin"></div><h3>Analisando suas respostas…</h3><p class="muted small mt8">Vocabulário, gramática e fluência.</p></div>`, "");
+  const q = PLACE_Q[P.i];
+  return obFrame(`<span class="tag orange">Nivelamento · ${P.i + 1}/3</span><h1 class="mt8">Vamos ouvir você</h1><p class="muted mt8 mb12">Responda em inglês, falando ou digitando. Do jeito que sair, sem pressão.</p>
+    <div class="card mb12"><p style="font-size:17px;font-weight:600">${esc(q)}</p>${canSpeak() ? `<button class="btn sec sm mt8" onclick="A.sayText(${JSON.stringify(q).replace(/"/g, "&quot;")})">🔊 Ouvir</button>` : ""}</div>
+    <textarea id="placeAns" class="field" placeholder="Sua resposta em inglês…">${esc(P.ans[P.i] || "")}</textarea>
+    <div class="row-flex mt8">${CAP.dict ? `<button class="iconbtn mic" data-mic="place" data-lbl="1" onclick="A.mic('place')">🎤</button><span id="micHint" class="small muted"></span>` : `<span class="small muted">Microfone: use o Chrome (Android/PC) ou o Safari (iPhone).</span>`}</div>`,
+    `<button class="btn ghost" onclick="A.obSkipPlace()">Pular</button><button class="btn block" onclick="A.obPlaceNext()">${P.i < 2 ? "Próxima" : "Ver meu nível"}</button>`);
+}
+
+/* ============================================================
+   HOME
+   ============================================================ */
+function lessonOfDay() {
+  const pool = SCENARIOS.filter(s => !s.exam && s.id !== "free");
+  const goalPref = {work: "business", exam: "exam", travel: "dia", conversation: "dia", study: "dia"}[S.profile.goal];
+  const pref = SCENARIOS.filter(s => s.cat === goalPref);
+  const n = dayOfYear();
+  return (n % 3 === 0 || !pref.length) ? pool[n % pool.length] : pref[n % pref.length];
+}
+function aiBanner() {
+  if (!CAP.ready) return `<div class="banner info">Conectando a IA…</div>`;
+  if (!CAP.sample) return `<div class="banner warn">Entre na sua conta para conversar com a IA.</div>`;
+  return "";
+}
+VIEWS.home = () => {
+  const p = S.profile, sec = todaySec(), goal = p.dailyMin * 60, pct = clamp(Math.round(sec / goal * 100), 0, 100);
+  const left = Math.max(0, Math.ceil((goal - sec) / 60));
+  const L = lessonOfDay();
+  const now = new Date(), [rh, rm] = (p.remind || "19:00").split(":").map(Number);
+  const late = (now.getHours() * 60 + now.getMinutes()) >= (rh * 60 + rm) && sec < goal;
+  const q = DAILY_Q[dayOfYear() % DAILY_Q.length];
+  const due = dueVocab().length;
+  return `${aiBanner()}
+  <div class="hello"><div><p class="muted small">${new Date().toLocaleDateString("pt-BR", {weekday: "long", day: "numeric", month: "long"})}</p><h1>Olá, ${esc(p.name || "aluno")} 👋</h1></div>
+  <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><span class="pill">🔥 ${streak()}</span><span class="pill">⭐ Nv ${level()}</span></div></div>
+  ${late ? `<div class="banner warn">⏰ Passou das ${esc(p.remind)} e a meta de hoje ainda não saiu. Que tal ${left} minutinhos agora?</div>` : ""}
+  <div class="card goal"><div class="ring" style="--p:${pct}"><div>${mins(sec)}<small>de ${p.dailyMin} min</small></div></div>
+    <div><h3>${pct >= 100 ? "Meta de hoje batida! ✅" : "Meta de hoje"}</h3><p class="small muted mt8">${pct >= 100 ? "Continue se quiser: tudo conta para o seu progresso." : `Faltam ${left} min de prática. Conversa e pronúncia contam.`}</p></div></div>
+  <h2>Lição do dia</h2>
+  <div class="lesson"><span class="big">${L.emoji}</span><span class="tag" style="background:#ffffff26;color:#fff">${esc(CATS[L.cat])}</span><h1 style="font-size:21px;margin-top:8px">${esc(L.title)}</h1><p>${esc(L.desc)}</p><button class="btn" onclick="A.start('${L.id}')">Começar conversa</button></div>
+  <h2>Pergunta do dia</h2>
+  <button class="item" onclick="A.start('daily')"><span class="em">❓</span><div class="body"><b>${esc(q)}</b><span>Responda falando · 1 a 3 min</span></div><span class="chev">›</span></button>
+  <h2>Atalhos</h2>
+  <div class="grid2">
+    <button class="tile" onclick="A.start('free')"><span class="em">💬</span><b>Conversa livre</b><span>Sobre seus temas favoritos</span></button>
+    <button class="tile" onclick="A.pronOpen()"><span class="em">🎯</span><b>Pronúncia</b><span>Nota palavra por palavra</span></button>
+    <button class="tile" onclick="A.reviewOpen()"><span class="em">🧠</span><b>Revisar palavras</b><span>${due ? due + " para revisar hoje" : "Nada pendente hoje"}</span></button>
+    <button class="tile" onclick="A.go('practice')"><span class="em">🎓</span><b>Simulados</b><span>IELTS, TOEFL, TDIE</span></button>
+  </div>
+  <div class="footer">Papo English v${VERSION} · DomDevLabs</div>`;
+};
+
+/* ============================================================
+   PRATICAR
+   ============================================================ */
+VIEWS.practice = () => {
+  const block = cat => SCENARIOS.filter(s => s.cat === cat).map(s => `<button class="item" onclick="A.start('${s.id}')"><span class="em">${s.emoji}</span><div class="body"><b>${esc(s.title)}</b><span>${esc(s.desc)}</span></div><span class="chev">›</span></button>`).join("");
+  return `${aiBanner()}<h1>Praticar</h1><p class="muted mt8">Escolha uma situação. A IA entra no papel e você conversa.</p>
+  <h2>Zona de prática</h2>
+  <div class="grid2">
+    <button class="tile" onclick="A.pronOpen()"><span class="em">🎯</span><b>Pronúncia</b><span>Frases por nível e sons difíceis</span></button>
+    <button class="tile" onclick="A.reviewOpen()"><span class="em">🧠</span><b>Flashcards</b><span>${dueVocab().length} para hoje</span></button>
+    <button class="tile" onclick="A.start('daily')"><span class="em">❓</span><b>Pergunta do dia</b><span>Resposta falada</span></button>
+    <button class="tile" onclick="A.start('free')"><span class="em">💬</span><b>Conversa livre</b><span>Tempo ilimitado</span></button>
+  </div>
+  <h2>${CATS.exam}</h2><div class="list">${block("exam")}</div>
+  <h2>${CATS.business}</h2><div class="list">${block("business")}</div>
+  <h2>${CATS.dia}</h2><div class="list">${block("dia")}</div>`;
+};
+
+/* ============================================================
+   CONVERSA
+   ============================================================ */
+let CH = null;
+function getScenario(id) {
+  if (id === "daily") { const q = DAILY_Q[dayOfYear() % DAILY_Q.length]; return {id: "daily", cat: "conversa", emoji: "❓", title: "Pergunta do dia", desc: q, role: `Daily speaking question. Your FIRST line must ask exactly this question: "${q}". Then have a natural follow-up conversation about the learner's answer, asking for details and reasons.`}; }
+  return SCENARIOS.find(s => s.id === id) || SCENARIOS[0];
+}
+function tutorPrompt(sc) {
+  return `You are "Lu", a warm English conversation partner inside a speaking-practice app for Brazilians.
+SCENARIO: ${sc.role}
+${learnerCtx()}
+RULES:
+- Speak ONLY English. Your text will be read aloud, so: no emojis, no markdown, no lists, no stage directions.
+- Keep each turn SHORT: 1 to 3 sentences, with vocabulary and grammar suited to level ${S.profile.level}.
+- Always end with a question or prompt so the learner keeps talking (unless the scenario has clearly ended; then say goodbye warmly).
+- Do NOT correct the learner's mistakes and do not mention them: another system does that. Just keep the conversation natural.
+- If the learner writes in Portuguese, reply in simple English and encourage them to try saying it in English.
+- If the learner seems stuck, rephrase your question more simply.
+- Stay in character for the whole conversation.`;
+}
+function buildMsgs() {
+  const arr = [{role: "user", content: tutorPrompt(CH.sc) + "\n\n[Start now: say your opening line in character. Greet the learner by name if it fits.]"}];
+  CH.msgs.forEach(m => {
+    if (m.err || m.streaming || !m.text) return;
+    const role = m.role === "ai" ? "assistant" : "user";
+    const last = arr[arr.length - 1];
+    if (last.role === role) last.content += "\n" + m.text; else arr.push({role, content: m.text});
+  });
+  if (arr[arr.length - 1].role !== "user") arr.push({role: "user", content: "(continue)"});
+  return arr;
+}
+function startChat(id) {
+  stopSpeak();
+  const sc = getScenario(id);
+  CH = {id: uid(), sc, msgs: [], start: Date.now(), busy: false, pt: false, assist: ""};
+  go("chat");
+  aiTurn();
+}
+VIEWS.chat = () => {
+  if (!CH) { view = "home"; return VIEWS.home(); }
+  return `<div class="chat">
+    <div class="chathead"><button class="iconbtn" onclick="A.leaveChat()">✕</button><div class="t"><b>${CH.sc.emoji} ${esc(CH.sc.title)}</b><small id="chatTimer">${fmtTime(Math.floor((Date.now() - CH.start) / 1000))}</small></div>
+      <button class="iconbtn" title="Áudio automático" onclick="A.toggleAuto()">${S.profile.autoplay ? "🔊" : "🔇"}</button>
+      <button class="btn sm orange" onclick="A.endChat()">Encerrar</button></div>
+    <div id="msgs" class="msgs"></div>
+    <div id="assist" class="assist">${CH.assist || ""}</div>
+    <div class="composer">
+      <button class="iconbtn" title="Me ajuda" onclick="A.hint()">💡</button>
+      <button class="iconbtn ptbtn ${CH.pt ? "on" : ""}" title="Escrever em português" onclick="A.togglePT()">PT</button>
+      <textarea id="chatInput" rows="1" placeholder="${CH.pt ? "Escreva em português e eu traduzo…" : (CAP.dict ? "Fale ou digite em inglês…" : "Digite em inglês…")}"></textarea>
+      ${CAP.dict && !CH.pt ? `<button class="iconbtn mic" data-mic="chat" data-lbl="1" onclick="A.mic('chat')">🎤</button>` : ""}
+      <button class="iconbtn send" onclick="A.send()">${CH.pt ? "🌐" : "➤"}</button>
+    </div></div>`;
+};
+function msgHTML(m) {
+  if (m.role === "ai") {
+    const txt = m.streaming && (!m.text || /^thinking/i.test(m.text)) ? `<span class="dots"><i></i><i></i><i></i></span>` : esc(m.text);
+    const tools = (!m.streaming && !m.err) ? `<div class="tools"><button onclick="A.say('${m.id}')">🔊 Ouvir</button><button onclick="A.say('${m.id}',0.75)">🐢 Devagar</button><button onclick="A.tr('${m.id}')">🇧🇷 ${m.pt ? "Ocultar" : "Traduzir"}</button><button onclick="A.pronFrom('${m.id}')">🎯 Praticar</button></div>` : "";
+    return `<div class="mrow" id="m_${m.id}"><div class="av">Lu</div><div class="bub ${m.err ? "err" : "ai"}" ${m.err ? `onclick="A.retry()"` : ""}>${txt}${m.pt && m.pt !== "…" ? `<div class="pt">${esc(m.pt)}</div>` : m.pt === "…" ? `<div class="pt">traduzindo…</div>` : ""}${tools}</div></div>`;
+  }
+  let chip = "";
+  if (m.cs === "pending") chip = `<span class="chip">⏳ analisando…</span>`;
+  else if (m.cs === "ok") chip = `<button class="chip ok" onclick="A.fix('${m.id}')">✓ Muito bom</button>`;
+  else if (m.cs === "fix") chip = `<button class="chip fix" onclick="A.fix('${m.id}')">✏️ Toque para corrigir</button>`;
+  else if (m.cs === "error") chip = `<button class="chip" onclick="A.recheck('${m.id}')">↻ Analisar</button>`;
+  return `<div class="mrow user" id="m_${m.id}"><div class="ucol"><div class="bub user">${esc(m.text)}</div>${chip}</div></div>`;
+}
+function renderMsgs() {
+  const box = $("#msgs"); if (!box || !CH) return;
+  box.innerHTML = CH.msgs.map(msgHTML).join("") || "";
+  box.scrollTop = box.scrollHeight;
+}
+function updateMsg(m) {
+  const el = document.getElementById("m_" + m.id);
+  if (!el) return renderMsgs();
+  const box = $("#msgs"); const atBottom = box && box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  el.outerHTML = msgHTML(m);
+  if (box && atBottom) box.scrollTop = box.scrollHeight;
+}
+function setAssist(html) { if (!CH) return; CH.assist = html; const el = $("#assist"); if (el) el.innerHTML = html; const b = $("#msgs"); if (b) b.scrollTop = b.scrollHeight; }
+async function aiTurn() {
+  if (!CH) return;
+  const chat = CH;
+  if (!CAP.sample) {
+    if (!CAP.ready) { setTimeout(aiTurn, 800); return; }
+    chat.msgs.push({id: uid(), role: "ai", text: aiErr({code: "no_ai"}), err: true}); renderMsgs(); return;
+  }
+  chat.busy = true;
+  const m = {id: uid(), role: "ai", text: "", streaming: true};
+  chat.msgs.push(m); renderMsgs();
+  try {
+    const res = await CAP.sample(buildMsgs(), {modelTier: "quick", cache: false, onText: ({text}) => { if (CH !== chat) return; m.text = text || ""; updateMsg(m); }});
+    m.text = String((res && res.text) || m.text || "").replace(/\*+/g, "").trim();
+    if (!m.text) throw {code: "empty"};
+  } catch (e) { m.text = aiErr(e); m.err = true; }
+  m.streaming = false; chat.busy = false;
+  if (CH !== chat) return;
+  updateMsg(m);
+  if (!m.err && S.profile.autoplay) speak(m.text);
+}
+function sendChat() {
+  if (!CH) return;
+  const el = $("#chatInput"); const t = (el && el.value || "").trim();
+  if (!t) return;
+  if (CH.pt) { translateToEN(t); return; }
+  if (CH.busy) { toast("Espere a Lu terminar de responder."); return; }
+  el.value = ""; autoGrow(el); DICT.base = ""; DICT.partial = "";
+  setAssist("");
+  const m = {id: uid(), role: "user", text: t, cs: "pending", corr: null};
+  CH.msgs.push(m); addXP(5); renderMsgs();
+  correctMsg(m);
+  aiTurn();
+}
+async function correctMsg(m) {
+  if (!CH) return;
+  const chat = CH;
+  m.cs = "pending"; updateMsg(m);
+  const idx = chat.msgs.indexOf(m);
+  const prev = chat.msgs.slice(0, idx).reverse().find(x => x.role === "ai" && !x.err);
+  const prompt = `You are an English teacher for Brazilian learners (CEFR ${S.profile.level}). Analyze ONE turn the learner said in a spoken conversation. It came from speech-to-text, so IGNORE punctuation, capitalization and obvious transcription glitches; focus on grammar, word choice and naturalness.
+Context, the tutor said: "${prev ? prev.text : "(start of conversation)"}"
+Learner said: "${m.text}"
+Return JSON with exactly these keys:
+{"ok": true if it is correct and reasonably natural for a learner, else false,
+ "corrected": "minimal grammatical correction keeping the learner's words and meaning (same as original if ok)",
+ "natural": "how a native speaker would naturally say it in this context",
+ "explanation": "short explanation in Brazilian Portuguese, max 2 sentences; if ok, a short specific compliment",
+ "type": "grammar" | "vocabulary" | "naturalness" | "none",
+ "new_words": [{"en": "useful word or expression from the natural version", "pt": "tradução"}] (0 to 2 items, only if ok is false)}
+If the learner wrote in Portuguese: ok=false, type="vocabulary", corrected and natural = the English version.`;
+  try {
+    const j = await askJSON(prompt, "quick");
+    m.corr = j; m.cs = j.ok ? "ok" : "fix";
+    if (!j.ok) {
+      const t = ["grammar", "vocabulary", "naturalness"].includes(j.type) ? j.type : "grammar";
+      S.errStats[t] = (S.errStats[t] || 0) + 1;
+      (Array.isArray(j.new_words) ? j.new_words : []).slice(0, 2).forEach(w => addVocab(w.en, w.pt, j.natural || j.corrected, "conversa"));
+      checkBadges();
+    } else addXP(2);
+    save();
+  } catch (e) { m.cs = "error"; }
+  if (CH === chat) updateMsg(m);
+}
+function diffMark(orig, corr) {
+  const o = new Set(String(orig).toLowerCase().replace(/[^a-z0-9'\s]/g, " ").split(/\s+/).filter(Boolean));
+  return String(corr).split(/(\s+)/).map(tok => { const n = tok.toLowerCase().replace(/[^a-z0-9']/g, ""); return n && !o.has(n) ? `<mark>${esc(tok)}</mark>` : esc(tok); }).join("");
+}
+function fixSheet(m) {
+  const c = m.corr || {};
+  const typeLbl = {grammar: "Gramática", vocabulary: "Vocabulário", naturalness: "Naturalidade", none: "Tudo certo"}[c.type] || "Correção";
+  const nat = c.natural || c.corrected || m.text;
+  window.__nat = nat;
+  sheet(`<div class="row-flex between"><h3>${c.ok ? "✓ Muito bom!" : "✏️ Correção"}</h3><span class="tag ${c.ok ? "" : "orange"}">${typeLbl}</span></div>
+    <div class="cmp">
+      <div class="card"><div class="lbl ${c.ok ? "ok" : "bad"}">Você disse</div>${esc(m.text)}</div>
+      ${!c.ok && c.corrected && c.corrected !== m.text ? `<div class="card"><div class="lbl ok">Correto</div>${diffMark(m.text, c.corrected)}</div>` : ""}
+      ${c.natural ? `<div class="card"><div class="lbl br">Jeito nativo de dizer</div>${esc(c.natural)}</div>` : ""}
+    </div>
+    ${c.explanation ? `<p class="small" style="background:#fff;border-radius:12px;padding:12px">💡 ${esc(c.explanation)}</p>` : ""}
+    <div class="row-flex mt12"><button class="btn sec block" onclick="A.sayText(__nat)">🔊 Ouvir</button><button class="btn block" onclick="A.pronText(__nat)">🎯 Praticar frase</button></div>`);
+}
+async function translateToEN(t) {
+  setAssist(`<div class="card"><span class="dots"><i></i><i></i><i></i></span> Traduzindo…</div>`);
+  try {
+    const j = await askJSON(`Translate this Brazilian Portuguese sentence into natural, spoken English suitable for CEFR ${S.profile.level}, fitting a conversation. Return JSON {"en": "...", "note": "optional very short tip in Portuguese about a tricky word, or empty"}.\nSentence: "${t}"`, "quick");
+    window.__en = j.en || "";
+    setAssist(`<div class="card"><div class="lbl br" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--brand)">Em inglês, diga:</div><p style="font-size:16px;font-weight:600;margin:4px 0">${esc(j.en)}</p>${j.note ? `<p class="small muted">${esc(j.note)}</p>` : ""}
+      <div class="row-flex mt8"><button class="btn sec sm" onclick="A.sayText(__en)">🔊 Ouvir</button><button class="btn sm" onclick="A.useEN()">Usar e falar</button><button class="btn ghost sm" onclick="A.assistClose()">✕</button></div></div>`);
+  } catch (e) { setAssist(`<div class="card">${esc(aiErr(e))}</div>`); }
+}
+async function hint() {
+  if (!CH) return;
+  const lastAi = [...CH.msgs].reverse().find(m => m.role === "ai" && !m.err);
+  if (!lastAi) return;
+  setAssist(`<div class="card"><span class="dots"><i></i><i></i><i></i></span> Pensando em ideias…</div>`);
+  try {
+    const j = await askJSON(`A Brazilian English learner (CEFR ${S.profile.level}) is stuck. The tutor just said: "${lastAi.text}". Scenario: ${CH.sc.title}.
+Give 2 different short answers the learner could say next (natural, level-appropriate, first person), each with a Portuguese translation. Return JSON {"suggestions":[{"en":"...","pt":"..."},{"en":"...","pt":"..."}]}`, "quick");
+    window.__sugg = (j.suggestions || []).slice(0, 3);
+    setAssist(`<div class="card"><div class="row-flex between"><b>💡 Você pode dizer:</b><button class="btn ghost sm" onclick="A.assistClose()">✕</button></div>${window.__sugg.map((s, i) => `<button class="sugg" onclick="A.useSugg(${i})">${esc(s.en)}<small>${esc(s.pt)}</small></button>`).join("")}</div>`);
+  } catch (e) { setAssist(`<div class="card">${esc(aiErr(e))}</div>`); }
+}
+async function endChat() {
+  if (!CH) return go("home");
+  stopSpeak();
+  if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} }
+  const chat = CH;
+  const userMsgs = chat.msgs.filter(m => m.role === "user");
+  if (!userMsgs.length) { CH = null; return go("home"); }
+  const dur = Math.floor((Date.now() - chat.start) / 1000);
+  CH = null;
+  SUM = {loading: true, sc: chat.sc};
+  view = "summary"; render();
+  const transcript = chat.msgs.filter(m => !m.err && m.text).map(m => (m.role === "ai" ? "Tutor: " : "Learner: ") + m.text).join("\n");
+  const found = userMsgs.filter(m => m.corr && !m.corr.ok).map(m => `- "${m.text}" -> "${m.corr.corrected}"`).join("\n") || "(none)";
+  let sum = null;
+  try {
+    sum = await askJSON(`You are an English speaking coach. Analyze this practice conversation of a Brazilian learner (CEFR ${S.profile.level}). Scenario: ${chat.sc.title}.${chat.sc.exam ? ` This was a mock ${chat.sc.title} speaking test.` : ""}
+TRANSCRIPT:
+${transcript}
+CORRECTIONS ALREADY FOUND:
+${found}
+Return JSON:
+{"takeaways": ["3 short, specific takeaways in Brazilian Portuguese"],
+ "mistakes": [{"original": "...", "corrected": "...", "tip": "short tip in Portuguese"}] (max 5, the most important, empty if none),
+ "words": [{"en": "...", "pt": "...", "example": "short English example"}] (3 to 6 useful words or expressions for this scenario),
+ "scores": {"fluency": 0-10, "grammar": 0-10, "vocabulary": 0-10},
+ "estimate": "${chat.sc.exam ? "estimated score for this exam (e.g. IELTS band 6.0, TOEFL Speaking 22/30, or CEFR B2 for TDIE) + 1 sentence of justification in Portuguese" : "CEFR estimate for this conversation, e.g. B1, with a few words in Portuguese"}",
+ "next_step": "one concrete suggestion in Portuguese for the next practice"}`, "default");
+  } catch (e) { sum = {error: aiErr(e)}; }
+  const added = [];
+  (sum && Array.isArray(sum.words) ? sum.words : []).forEach(w => { if (addVocab(w.en, w.pt, w.example, chat.sc.title)) added.push(w.en); });
+  const xp = 20;
+  addXP(xp);
+  const rec = {id: chat.id, scId: chat.sc.id, title: chat.sc.title, emoji: chat.sc.emoji, cat: chat.sc.cat, exam: !!chat.sc.exam, date: new Date().toISOString(), dur, turns: userMsgs.length,
+    fixes: userMsgs.filter(m => m.cs === "fix").length, summary: sum, msgs: chat.msgs.filter(m => !m.err && m.text).map(m => ({r: m.role, t: m.text}))};
+  S.sessions.unshift(rec);
+  checkBadges(); save();
+  SUM = {loading: false, rec, added, xp: xp + userMsgs.length * 5};
+  if (view === "summary") render();
+}
+
+/* ============================================================
+   RESUMO DA SESSÃO
+   ============================================================ */
+let SUM = null;
+VIEWS.summary = () => {
+  if (!SUM) return VIEWS.home();
+  if (SUM.loading) return `<div class="center" style="padding-top:80px"><div class="spin"></div><h3>Preparando seu resumo…</h3><p class="muted small mt8">Pontos-chave, erros mais importantes e palavras novas.</p></div>`;
+  const r = SUM.rec, s = r.summary || {};
+  window.__sumWords = (s.words || []);
+  const sc = s.scores || {};
+  return `<div class="row-flex"><button class="iconbtn" onclick="A.go('${SUM.fromProgress ? "progress" : "home"}')">←</button></div>
+  <div class="sumhead"><div class="em">${r.emoji}</div><h1>${esc(r.title)}</h1><p class="muted small mt8">${new Date(r.date).toLocaleString("pt-BR", {dateStyle: "short", timeStyle: "short"})}</p>
+  <div class="kv"><span class="pill">⏱️ ${Math.max(1, mins(r.dur))} min</span><span class="pill">💬 ${r.turns} falas</span>${SUM.xp ? `<span class="pill">⭐ +${SUM.xp} XP</span>` : ""}</div></div>
+  ${s.error ? `<div class="banner warn">Não consegui gerar o resumo: ${esc(s.error)}</div>` : ""}
+  ${s.estimate ? `<div class="card mb12"><h3>${r.exam ? "🎓 Nota estimada" : "📊 Nível nesta conversa"}</h3><p class="mt8">${esc(s.estimate)}</p></div>` : ""}
+  ${sc.fluency != null ? `<div class="card mb12"><h3 class="mb8">Desempenho</h3>${[["Fluência", sc.fluency], ["Gramática", sc.grammar], ["Vocabulário", sc.vocabulary]].map(x => `<div class="meter"><span>${x[0]}</span><div class="t"><i style="width:${clamp(Number(x[1]) || 0, 0, 10) * 10}%"></i></div><b>${Number(x[1]) || 0}/10</b></div>`).join("")}</div>` : ""}
+  ${(s.takeaways || []).length ? `<h2>Pontos-chave</h2><div class="card"><ul class="clean">${s.takeaways.map(t => `<li>${esc(t)}</li>`).join("")}</ul></div>` : ""}
+  ${(s.mistakes || []).length ? `<h2>Para corrigir</h2><div class="list">${s.mistakes.map(m => `<div class="card"><p class="small"><s class="del">${esc(m.original)}</s></p><p style="font-weight:700;color:var(--ok)" class="mt8">${esc(m.corrected)}</p>${m.tip ? `<p class="small muted mt8">${esc(m.tip)}</p>` : ""}</div>`).join("")}</div>` : ""}
+  ${(s.words || []).length ? `<h2>Palavras novas</h2><p class="small muted mb8">${SUM.added && SUM.added.length ? "Já adicionei ao seu vocabulário ✓" : "Estão no seu vocabulário."}</p><div class="list">${s.words.map((w, i) => `<div class="vrow"><div class="body"><b>${esc(w.en)}</b><div>${esc(w.pt)}</div>${w.example ? `<i>${esc(w.example)}</i>` : ""}</div><button class="iconbtn" onclick="A.sayWord(${i})">🔊</button></div>`).join("")}</div>` : ""}
+  ${s.next_step ? `<div class="banner info mt16">👉 ${esc(s.next_step)}</div>` : ""}
+  ${(r.msgs || []).length ? `<h2>Conversa</h2><div class="card small">${r.msgs.map(m => `<p class="mb8"><b>${m.r === "ai" ? "Lu" : "Você"}:</b> ${esc(m.t)}</p>`).join("")}</div>` : ""}
+  <div class="row-flex mt16"><button class="btn ghost block" onclick="A.go('home')">Início</button><button class="btn block" onclick="A.start('${r.scId}')">Praticar de novo</button></div>`;
+};
+
+/* ============================================================
+   PRONÚNCIA
+   ============================================================ */
+let PR = {src: "level", list: [], idx: 0, result: null, heard: "", tips: null, back: "practice"};
+function pronList(src) {
+  if (src === "hard") return PRON_HARD.slice();
+  if (src === "vocab") { const v = S.vocab.filter(x => x.ex).slice(0, 30).map(x => x.ex); return v.length ? v : PRON_LEVEL[S.profile.level]; }
+  return (PRON_LEVEL[S.profile.level] || PRON_LEVEL.B1).slice();
+}
+function lev(a, b) {
+  const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+  let p = Array.from({length: n + 1}, (_, i) => i);
+  for (let i = 1; i <= m; i++) { const c = [i]; for (let j = 1; j <= n; j++) c[j] = Math.min(p[j] + 1, c[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); p = c; }
+  return p[n];
+}
+const norm = w => String(w).toLowerCase().replace(/[’‘`]/g, "'").replace(/[^a-z0-9']/g, "");
+function scorePron(target, heard) {
+  const T = String(target).split(/\s+/).filter(Boolean).map(raw => ({raw, n: norm(raw)})).filter(t => t.n);
+  const H = String(heard).split(/\s+/).map(norm).filter(Boolean);
+  let j = 0;
+  const words = T.map(t => {
+    let best = 0, bi = -1;
+    for (let k = j; k < Math.min(H.length, j + 4); k++) { const h = H[k]; const sim = 1 - lev(t.n, h) / Math.max(t.n.length, h.length); if (sim > best) { best = sim; bi = k; } }
+    let sc = 0;
+    if (best >= 0.999) sc = 100; else if (best >= 0.5) sc = Math.round(best * 85);
+    if (bi >= 0 && best >= 0.5) j = bi + 1;
+    return {w: t.raw, sc};
+  });
+  const overall = words.length ? Math.round(words.reduce((a, b) => a + b.sc, 0) / words.length) : 0;
+  return {words, overall};
+}
+function evaluatePron(heard) {
+  const target = PR.list[PR.idx];
+  PR.heard = heard;
+  if (!heard) { toast("Não ouvi nada. Tente de novo, perto do microfone."); return; }
+  PR.result = scorePron(target, heard);
+  PR.tips = null;
+  S.pronCount = (S.pronCount || 0) + 1;
+  if (PR.result.overall > (S.pronBest || 0)) S.pronBest = PR.result.overall;
+  addXP(Math.round(PR.result.overall / 10));
+  checkBadges(); save();
+  render();
+}
+VIEWS.pron = () => {
+  const target = PR.list[PR.idx] || "";
+  const r = PR.result;
+  const cls = s => s >= 85 ? "s-ok" : s >= 55 ? "s-mid" : "s-bad";
+  return `<div class="row-flex between"><button class="iconbtn" onclick="A.pronBack()">←</button><b>🎯 Pronúncia</b><span class="pill">${PR.idx + 1}/${PR.list.length}</span></div>
+  ${PR.src !== "custom" ? `<div class="seg mt12"><button class="${PR.src === "level" ? "on" : ""}" onclick="A.pronSrc('level')">Nível ${esc(S.profile.level)}</button><button class="${PR.src === "hard" ? "on" : ""}" onclick="A.pronSrc('hard')">Sons difíceis</button><button class="${PR.src === "vocab" ? "on" : ""}" onclick="A.pronSrc('vocab')">Meu vocabulário</button></div>` : `<div style="height:12px"></div>`}
+  <div class="card">
+    <div class="target">${r ? `<div class="wscore">${r.words.map(w => `<span class="${cls(w.sc)}">${esc(w.w)}<small>${w.sc}</small></span>`).join("")}</div>` : esc(target)}</div>
+    <div class="row-flex" style="justify-content:center"><button class="btn sec sm" onclick="A.sayText(PR.list[PR.idx])">🔊 Ouvir</button><button class="btn sec sm" onclick="A.sayText(PR.list[PR.idx],0.72)">🐢 Devagar</button></div>
+  </div>
+  ${CAP.dict ? `<div class="center mt16"><button class="bigmic mic" data-mic="pron" data-lbl="1" onclick="A.mic('pron')">🎤</button><p class="small muted" id="micHint">Toque, leia a frase em voz alta e toque de novo</p>
+    <p class="small mt8" id="pronHeard" style="min-height:20px;color:var(--brand-2)">${esc(PR.heard || "")}</p></div>`
+    : `<div class="banner info mt16">Seu navegador não reconhece voz. Abra no Chrome (Android/PC) ou no Safari (iPhone) para gravar. Por enquanto, ouça e repita em voz alta (shadowing) e use as dicas do coach.</div>`}
+  ${r ? `<div class="card mt12 center"><div class="score-big" style="color:${r.overall >= 85 ? "var(--ok)" : r.overall >= 55 ? "var(--warn)" : "var(--bad)"}">${r.overall}</div><p class="small muted">${r.overall >= 85 ? "Excelente! Bem claro." : r.overall >= 55 ? "Bom! Ajuste as palavras em amarelo e vermelho." : "Vamos de novo, mais devagar."}</p>
+    <p class="small muted mt8">Nota baseada no reconhecimento de voz: palavras entendidas corretamente valem 100.</p></div>` : ""}
+  <div class="mt12">${PR.tips ? (PR.tips === "…" ? `<div class="card center"><span class="dots"><i></i><i></i><i></i></span></div>` : `<div class="card"><h3 class="mb8">🧑‍🏫 Dicas do coach</h3>${PR.tips.map(t => `<div class="mb12"><b>${esc(t.word)}</b> <span class="ipa">${esc(t.ipa || "")}</span><p class="small muted">${esc(t.tip || "")}</p></div>`).join("")}</div>`)
+    : `<button class="btn ghost block" onclick="A.pronTips()">🧑‍🏫 Dicas de pronúncia desta frase</button>`}</div>
+  <div class="row-flex mt12"><button class="btn ghost block" onclick="A.pronRetry()">↻ Repetir</button><button class="btn block" onclick="A.pronNext()">Próxima frase →</button></div>`;
+};
+async function pronTips() {
+  if (!CAP.sample) { toast(aiErr({code: "no_ai"})); return; }
+  const target = PR.list[PR.idx];
+  const weak = PR.result ? PR.result.words.filter(w => w.sc < 85).map(w => w.w) : [];
+  PR.tips = "…"; render();
+  try {
+    const j = await askJSON(`You are a pronunciation coach for Brazilian Portuguese speakers learning American English.
+Sentence: "${target}"
+${weak.length ? `Words the learner struggled with: ${weak.join(", ")}.` : "Pick the 2-3 words in this sentence that Brazilians most often mispronounce."}
+Return JSON {"tips":[{"word":"...","ipa":"/IPA (American)/","tip":"practical tip in Brazilian Portuguese (mouth/tongue position, comparison with a Portuguese sound, common mistake to avoid), max 2 sentences"}]} with 2 to 4 items. Add a final item with word "Entonação" and a tip about rhythm/stress of the whole sentence.`, "quick");
+    PR.tips = Array.isArray(j.tips) ? j.tips : [];
+  } catch (e) { PR.tips = null; toast(aiErr(e)); }
+  if (view === "pron") render();
+}
+
+/* ============================================================
+   VOCABULÁRIO + FLASHCARDS
+   ============================================================ */
+let VQ = "";
+VIEWS.vocab = () => {
+  const due = dueVocab().length;
+  const q = VQ.toLowerCase();
+  const list = S.vocab.filter(v => !q || v.en.toLowerCase().includes(q) || (v.pt || "").toLowerCase().includes(q));
+  const learned = S.vocab.filter(v => v.learned).length;
+  return `<h1>Vocabulário</h1><p class="muted mt8">Palavras das suas conversas e as que você adicionar. ${S.vocab.length} no total · ${learned} dominadas.</p>
+  <div class="row-flex mt12"><button class="btn block ${due ? "orange" : "sec"}" onclick="A.reviewOpen()">🧠 Revisar ${due ? "(" + due + ")" : ""}</button><button class="btn sec" onclick="A.addWord()">＋ Adicionar</button></div>
+  <input class="field mt12" placeholder="Buscar…" value="${esc(VQ)}" oninput="VQ=this.value;A.vocabList()">
+  <div id="vlist" class="list mt12">${vocabRows(list)}</div>`;
+};
+function vocabRows(list) {
+  if (!S.vocab.length) return `<div class="card center muted small">Ainda vazio. Converse com a Lu: as palavras novas e as que você errar entram aqui automaticamente.</div>`;
+  if (!list.length) return `<p class="muted small center">Nada encontrado.</p>`;
+  return list.slice(0, 300).map(v => `<div class="vrow ${v.learned ? "done" : ""}"><div class="body"><b>${esc(v.en)}</b><div>${esc(v.pt)}</div>${v.ex ? `<i>${esc(v.ex)}</i>` : ""}</div>
+    <button class="iconbtn" onclick="A.sayV('${v.id}')">🔊</button><button class="iconbtn" title="Dominada" onclick="A.learn('${v.id}')">${v.learned ? "↺" : "✓"}</button><button class="iconbtn" onclick="A.delV('${v.id}')">🗑️</button></div>`).join("");
+}
+let RV = {queue: [], i: 0, show: false, done: 0};
+VIEWS.review = () => {
+  const v = RV.queue[RV.i];
+  if (!v) return `<div class="row-flex"><button class="iconbtn" onclick="A.go('vocab')">←</button></div><div class="center" style="padding-top:60px"><div style="font-size:60px">🎉</div><h1 class="mt8">Revisão concluída!</h1><p class="muted mt8">${RV.done} palavras revisadas. Volte amanhã para as próximas.</p><button class="btn mt16" onclick="A.go('home')">Voltar ao início</button></div>`;
+  return `<div class="row-flex between"><button class="iconbtn" onclick="A.go('vocab')">←</button><b>🧠 Revisão</b><span class="pill">${RV.i + 1}/${RV.queue.length}</span></div>
+  <div class="card flash mt16"><div class="w">${esc(v.en)}</div><button class="btn sec sm" onclick="A.sayV('${v.id}')">🔊 Ouvir</button>
+    ${RV.show ? `<div class="mt12" style="font-size:18px;font-weight:700;color:var(--brand-2)">${esc(v.pt || "—")}</div>${v.ex ? `<p class="muted small">${esc(v.ex)}</p>` : ""}` : `<p class="muted small mt12">Você lembra o significado? Tente falar uma frase com ela.</p>`}</div>
+  ${RV.show ? `<div class="row-flex mt16"><button class="btn ghost block" style="color:var(--bad)" onclick="A.grade(0)">Errei</button><button class="btn ghost block" onclick="A.grade(1)">Difícil</button><button class="btn block" style="background:var(--ok)" onclick="A.grade(2)">Acertei</button></div>`
+    : `<button class="btn block mt16" onclick="A.reveal()">Mostrar resposta</button>`}`;
+};
+
+/* ============================================================
+   PROGRESSO
+   ============================================================ */
+VIEWS.progress = () => {
+  const totalMin = mins(Object.values(S.days).reduce((a, b) => a + b, 0));
+  const lv = level(), inLv = S.xp % 200;
+  const days = []; for (let i = 6; i >= 0; i--) days.push(addDays(today(), -i));
+  const max = Math.max(S.profile.dailyMin * 60, ...days.map(d => S.days[d] || 0));
+  const wd = ["D", "S", "T", "Q", "Q", "S", "S"];
+  const es = S.errStats, et = (es.grammar || 0) + (es.vocabulary || 0) + (es.naturalness || 0);
+  return `<h1>Progresso</h1>
+  <div class="card mt12"><div class="row-flex between"><h3>⭐ Nível ${lv}</h3><span class="small muted">${inLv}/200 XP</span></div><div class="xpbar"><i style="width:${inLv / 2}%"></i></div><p class="small muted mt8">${S.xp} XP no total</p></div>
+  <div class="stats mt12"><div class="stat"><b>🔥 ${streak()}</b><span>dias seguidos</span></div><div class="stat"><b>${totalMin}</b><span>minutos falando</span></div><div class="stat"><b>${S.sessions.length}</b><span>conversas</span></div></div>
+  <h2>Últimos 7 dias</h2>
+  <div class="card"><div class="bars">${days.map(d => { const s = S.days[d] || 0; const [y, m, dd] = d.split("-").map(Number); const w = new Date(y, m - 1, dd).getDay(); return `<div class="b"><small>${mins(s) || ""}</small><i class="${s >= S.profile.dailyMin * 60 ? "hit" : ""}" style="height:${Math.max(3, s / max * 100)}%"></i><em>${wd[w]}</em></div>`; }).join("")}</div>
+  <p class="small muted mt8">Laranja = meta de ${S.profile.dailyMin} min batida.</p></div>
+  <h2>Conquistas</h2>
+  <div class="badges">${BADGES.map(b => `<div class="badge ${S.badges.includes(b.id) ? "" : "off"}"><span class="em">${b.em}</span>${esc(b.name)}</div>`).join("")}</div>
+  ${et ? `<h2>Onde você mais erra</h2><div class="card">${[["Gramática", es.grammar || 0], ["Vocabulário", es.vocabulary || 0], ["Naturalidade", es.naturalness || 0]].map(x => `<div class="meter"><span>${x[0]}</span><div class="t"><i style="width:${Math.round(x[1] / et * 100)}%;background:var(--accent)"></i></div><b>${x[1]}</b></div>`).join("")}</div>` : ""}
+  <div class="stats mt12"><div class="stat"><b>${S.vocab.length}</b><span>palavras</span></div><div class="stat"><b>${S.pronBest || 0}</b><span>melhor pronúncia</span></div><div class="stat"><b>${S.profile.level}</b><span>nível CEFR</span></div></div>
+  <h2>Histórico</h2>
+  <div class="list">${S.sessions.length ? S.sessions.slice(0, 40).map((s, i) => `<button class="item" onclick="A.openSession(${i})"><span class="em">${s.emoji}</span><div class="body"><b>${esc(s.title)}</b><span>${new Date(s.date).toLocaleDateString("pt-BR")} · ${Math.max(1, mins(s.dur))} min · ${s.turns} falas${s.summary && s.summary.estimate ? " · " + esc(String(s.summary.estimate).split(/[,.;(]/)[0]) : ""}</span></div><span class="chev">›</span></button>`).join("") : `<div class="card center muted small">Suas conversas aparecem aqui com resumo e correções.</div>`}</div>`;
+};
+
+/* ============================================================
+   PERFIL
+   ============================================================ */
+VIEWS.profile = () => {
+  const p = S.profile;
+  const sel = (id, opts, val) => `<select onchange="A.setP('${id}',this.value)">${opts.map(o => `<option value="${esc(o[0])}" ${String(o[0]) === String(val) ? "selected" : ""}>${esc(o[1])}</option>`).join("")}</select>`;
+  const st = (on, l) => `<span class="${on ? "st-on" : "st-off"}">${on ? "●" : "○"} ${l}</span>`;
+  return `<h1>Perfil</h1>
+  <h2>Você</h2>
+  <div class="set">
+    <div><label>Nome</label><input type="text" value="${esc(p.name)}" onchange="A.setP('name',this.value)"></div>
+    <div><label>Nível</label>${sel("level", LEVELS.map(l => [l[0], l[0] + " · " + l[1]]), p.level)}</div>
+    <div><label>Objetivo</label>${sel("goal", GOALS.map(g => [g[0], g[2]]), p.goal)}</div>
+    <div><label>Meta diária</label>${sel("dailyMin", [5, 10, 15, 20, 30, 45, 60].map(m => [m, m + " min"]), p.dailyMin)}</div>
+    <div><label>Lembrete</label><input type="time" value="${esc(p.remind)}" onchange="A.setP('remind',this.value)"></div>
+  </div>
+  <button class="btn sec block mt8" onclick="A.editInterests()">Editar temas de interesse (${(p.interests || []).length})</button>
+  <h2>Voz</h2>
+  <div class="set">
+    <div><label>Ler respostas em voz alta</label><button class="sw ${p.autoplay ? "on" : ""}" onclick="A.setP('autoplay',${!p.autoplay})"></button></div>
+    ${enVoices().length ? `<div><label>Voz da Lu</label>${sel("voice", [["", "Automática"]].concat(enVoices().map(v => [v.name, v.name.replace(/\(.*\)/, "").trim() + " · " + v.lang])), p.voice || "")}</div>` : ""}
+    <div><label>Velocidade</label>${sel("rate", [[0.8, "Devagar"], [0.9, "Um pouco devagar"], [1, "Normal"], [1.1, "Um pouco rápida"], [1.25, "Rápida"]], p.rate)}</div>
+    <div><label>Testar voz</label><button class="btn sec sm" onclick="A.sayText('Hi ${esc((p.name || "").replace(/'/g, ""))}! Ready to practice your English today?')">🔊 Ouvir</button></div>
+  </div>
+  <h2>Mais</h2>
+  <div class="list">
+    <button class="item" onclick="A.redoPlacement()"><span class="em">🧪</span><div class="body"><b>Refazer nivelamento</b><span>${S.placement ? "Último: " + esc(S.placement.level) : "Descubra seu nível CEFR"}</span></div><span class="chev">›</span></button>
+    <button class="item" onclick="A.invite()"><span class="em">🎁</span><div class="body"><b>Convide um amigo</b><span>Pratique junto com alguém</span></div><span class="chev">›</span></button>
+    <button class="item" onclick="A.reset()"><span class="em">🗑️</span><div class="body"><b>Apagar meu progresso</b><span>Recomeça do zero</span></div><span class="chev">›</span></button>
+    <button class="item" onclick="A.logout()"><span class="em">🚪</span><div class="body"><b>Sair da conta</b><span>${esc(SESSION && SESSION.user.email || "")}</span></div><span class="chev">›</span></button>
+  </div>
+  <h2>Status</h2>
+  <div class="card"><div class="status">${st(!!CAP.sample, "IA")}${st(!!CAP.dict, "Microfone")}${st("speechSynthesis" in window, "Voz")}${st(!!CAP.synced, "Sincronização")}</div>
+  <p class="small muted mt8">${CAP.synced ? "Seu progresso fica salvo na sua conta e neste aparelho." : "Progresso salvo neste aparelho; sincroniza quando houver conexão."} ${CAP.dict ? "" : "Para falar pelo microfone, use o Chrome (Android/PC) ou o Safari (iPhone)."}</p></div>
+  <h2>Sobre</h2>
+  <div class="dev">${DEVLOGO}<div><b>Desenvolvido por DomDevLabs</b><p class="small muted">domdevlabs@gmail.com</p><p class="small muted">Papo English v${VERSION}</p></div></div>
+  <div style="height:10px"></div>`;
+};
+
+/* ============================================================
+   AÇÕES
+   ============================================================ */
+const A = {
+  go: v => go(v),
+  close: closeSheet,
+  start: id => startChat(id),
+  mic: t => micToggle(t),
+  /* onboarding */
+  obNext() {
+    if (OB.step === 1 && !OB.d.name.trim()) { toast("Digite seu nome 🙂"); return; }
+    if (OB.step === 3 && OB.d.level) { /* nada */ }
+    OB.step = Math.min(OB.step + 1, OB_TOTAL); render(); window.scrollTo(0, 0);
+  },
+  obBack() {
+    if (OB.step === 7 && OB.place.i > 0 && !OB.place.result) { OB.place.i--; render(); return; }
+    OB.step = Math.max(0, OB.step - 1); render();
+  },
+  obSet(k, v) { OB.d[k] = v; render(); },
+  obToggle(k, v) { const a = OB.d[k]; const i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); render(); },
+  obPlaceNext() {
+    const P = OB.place; const el = $("#placeAns"); const v = (el && el.value || "").trim();
+    if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} }
+    if (v.split(/\s+/).length < 2) { toast("Responda com pelo menos uma frase, em inglês."); return; }
+    P.ans[P.i] = v;
+    if (P.i < 2) { P.i++; render(); return; }
+    A.evalPlacement();
+  },
+  async evalPlacement() {
+    const P = OB.place; P.busy = true; render();
+    try {
+      const j = await askJSON(`You are a certified CEFR examiner. A Brazilian learner answered 3 speaking prompts (transcribed from speech or typed, ignore punctuation and capitalization). Self-assessed level: ${OB.d.level || S.profile.level}.
+${PLACE_Q.map((q, i) => `Q${i + 1}: ${q}\nA${i + 1}: ${P.ans[i] || "(no answer)"}`).join("\n")}
+Estimate the CEFR level (one of A1, A2, B1, B2, C1). Return JSON {"level":"B1","reason_pt":"2 sentences in Brazilian Portuguese explaining why","strengths":["1-2 short items in Portuguese"],"focus":["2 short items in Portuguese to improve"]}`, "default");
+      if (!["A1", "A2", "B1", "B2", "C1"].includes(j.level)) j.level = OB.d.level || "B1";
+      P.result = j; OB.d.level = j.level;
+    } catch (e) { toast(aiErr(e)); }
+    P.busy = false;
+    if (view === "onb") render(); else if (view === "placement") render();
+  },
+  obSkipPlace() { OB.step++; render(); },
+  obFinish() {
+    const d = OB.d;
+    Object.assign(S.profile, {name: d.name.trim(), goal: d.goal || "conversation", level: d.level || "B1", challenges: d.challenges, interests: d.interests, dailyMin: d.dailyMin, remind: d.remind});
+    if (OB.place.result) S.placement = {level: OB.place.result.level, date: today(), reason: OB.place.result.reason_pt || ""};
+    S.onboarded = true; addXP(10); save(); flushDb();
+    go("home");
+  },
+  /* chat */
+  send: () => sendChat(),
+  retry() { if (!CH || CH.busy) return; CH.msgs = CH.msgs.filter(m => !m.err); aiTurn(); },
+  leaveChat() {
+    if (CH && CH.msgs.some(m => m.role === "user")) confirmBox("Sair agora? Você perde o resumo desta conversa.", "Sair", () => { stopSpeak(); CH = null; go("home"); });
+    else { stopSpeak(); CH = null; go("home"); }
+  },
+  endChat: () => endChat(),
+  toggleAuto() { S.profile.autoplay = !S.profile.autoplay; save(); if (!S.profile.autoplay) stopSpeak(); const keep = $("#chatInput") && $("#chatInput").value; render(); if (keep) $("#chatInput").value = keep; toast(S.profile.autoplay ? "Áudio automático ligado" : "Áudio automático desligado"); },
+  togglePT() { if (!CH) return; if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} } CH.pt = !CH.pt; render(); const el = $("#chatInput"); if (el) el.focus(); },
+  useEN() { if (!CH) return; CH.pt = false; const en = window.__en || ""; render(); const el = $("#chatInput"); if (el) { el.value = en; autoGrow(el); } setAssist(""); toast(CAP.dict ? "Agora fale a frase no microfone 🎤" : "Leia em voz alta e envie ➤"); },
+  useSugg(i) { const s = (window.__sugg || [])[i]; if (!s) return; const el = $("#chatInput"); if (el) { el.value = s.en; autoGrow(el); } speak(s.en); setAssist(""); },
+  assistClose() { setAssist(""); },
+  hint: () => hint(),
+  say(id, rate) { const m = CH && CH.msgs.find(x => x.id === id); if (m) speak(m.text, rate ? {rate} : null); },
+  sayText(t, rate) { speak(t, rate ? {rate} : null); },
+  async tr(id) {
+    const m = CH && CH.msgs.find(x => x.id === id); if (!m) return;
+    if (m.pt && m.pt !== "…") { m.pt = ""; updateMsg(m); return; }
+    m.pt = "…"; updateMsg(m);
+    try { m.pt = await askText(`Translate to natural Brazilian Portuguese. Return only the translation.\n\n${m.text}`, "quick"); }
+    catch (e) { m.pt = ""; toast(aiErr(e)); }
+    if (CH) updateMsg(m);
+  },
+  fix(id) { const m = CH && CH.msgs.find(x => x.id === id); if (m && m.corr) fixSheet(m); },
+  recheck(id) { const m = CH && CH.msgs.find(x => x.id === id); if (m) correctMsg(m); },
+  pronFrom(id) {
+    const m = CH && CH.msgs.find(x => x.id === id); if (!m) return;
+    const parts = m.text.split(/(?<=[.!?])\s+/).filter(s => s.split(/\s+/).length >= 3);
+    A.pronText(parts.length ? parts[0] : m.text, "chat");
+  },
+  pronText(t, back) { closeSheet(); PR = {src: "custom", list: [String(t)], idx: 0, result: null, heard: "", tips: null, back: back || (view === "chat" || CH ? "chat" : "practice")}; go("pron"); },
+  /* pronúncia */
+  pronOpen() { PR = {src: "level", list: pronList("level"), idx: 0, result: null, heard: "", tips: null, back: view}; go("pron"); },
+  pronSrc(s) { PR.src = s; PR.list = pronList(s); PR.idx = 0; PR.result = null; PR.heard = ""; PR.tips = null; render(); },
+  pronNext() {
+    if (PR.src === "custom") { A.pronBack(); return; }
+    PR.idx = (PR.idx + 1) % PR.list.length; PR.result = null; PR.heard = ""; PR.tips = null; render();
+  },
+  pronRetry() { PR.result = null; PR.heard = ""; render(); },
+  pronTips: () => pronTips(),
+  pronBack() { if (DICT.listening) { try { CAP.dict.stop().catch(() => {}); } catch (e) {} } go(PR.back === "chat" && CH ? "chat" : (PR.back && VIEWS[PR.back] && PR.back !== "pron" ? PR.back : "practice")); },
+  /* vocab */
+  vocabList() { const el = $("#vlist"); if (!el) return; const q = VQ.toLowerCase(); el.innerHTML = vocabRows(S.vocab.filter(v => !q || v.en.toLowerCase().includes(q) || (v.pt || "").toLowerCase().includes(q))); },
+  sayV(id) { const v = S.vocab.find(x => x.id === id); if (v) speak(v.en); },
+  sayWord(i) { const w = (window.__sumWords || [])[i]; if (w) speak(w.en); },
+  learn(id) { const v = S.vocab.find(x => x.id === id); if (!v) return; v.learned = !v.learned; if (!v.learned) { v.box = 0; v.due = today(); } save(); A.vocabList(); },
+  delV(id) { confirmBox("Remover esta palavra?", "Remover", () => { S.vocab = S.vocab.filter(x => x.id !== id); save(); render(); }); },
+  addWord() {
+    sheet(`<h3 class="mb12">Adicionar palavra ou expressão</h3><input id="nwEn" class="field mb8" placeholder="Em inglês (ex.: look forward to)"><input id="nwPt" class="field mb8" placeholder="Tradução (opcional: a IA completa)">
+      <div class="row-flex mt8"><button class="btn ghost block" onclick="A.close()">Cancelar</button><button class="btn block" onclick="A.saveWord()">Salvar</button></div>`);
+    setTimeout(() => { const e = $("#nwEn"); if (e) e.focus(); }, 50);
+  },
+  async saveWord() {
+    const en = ($("#nwEn").value || "").trim(); let pt = ($("#nwPt").value || "").trim(); let ex = "";
+    if (!en) { toast("Digite a palavra em inglês."); return; }
+    closeSheet();
+    if (CAP.sample) {
+      try { const j = await askJSON(`For the English word or expression "${en}", return JSON {"pt":"Brazilian Portuguese translation","example":"short natural English example sentence"}.`, "quick"); if (!pt) pt = j.pt || ""; ex = j.example || ""; } catch (e) {}
+    }
+    if (addVocab(en, pt, ex, "manual")) { addXP(1); checkBadges(); save(); toast("Adicionada ✓"); } else toast("Essa já está na lista.");
+    if (view === "vocab") render();
+  },
+  reviewOpen() {
+    const q = dueVocab();
+    if (!q.length) { toast(S.vocab.length ? "Nenhuma palavra para revisar hoje 🎉" : "Seu vocabulário ainda está vazio."); if (view !== "vocab") go("vocab"); return; }
+    RV = {queue: q.slice(0, 20).sort(() => Math.random() - .5), i: 0, show: false, done: 0}; go("review");
+  },
+  reveal() { RV.show = true; render(); },
+  grade(g) {
+    const v = RV.queue[RV.i]; if (!v) return;
+    if (g === 0) v.box = 0; else if (g === 2) v.box = (v.box || 0) + 1;
+    if (v.box >= BOXES.length) { v.learned = true; v.box = BOXES.length - 1; toast("🧠 " + v.en + " dominada!"); }
+    v.due = addDays(today(), g === 0 ? 1 : BOXES[v.box || 0]);
+    RV.done++; addXP(2); RV.i++; RV.show = false; checkBadges(); save(); render();
+  },
+  /* progresso */
+  openSession(i) { const r = S.sessions[i]; if (!r) return; SUM = {loading: false, rec: r, added: [], xp: 0, fromProgress: true}; go("summary"); },
+  /* perfil */
+  setP(k, v) {
+    if (k === "dailyMin") v = Number(v); if (k === "rate") v = Number(v);
+    if (k === "autoplay") v = !!v;
+    S.profile[k] = v; save(); if (k === "voice") sysVoice = pickVoice();
+    if (["autoplay", "level"].includes(k)) render();
+    if (k === "level") toast("Nível atualizado para " + v);
+  },
+  editInterests() {
+    window.__int = (S.profile.interests || []).slice();
+    const draw = () => sheet(`<h3 class="mb12">Temas de interesse</h3><div class="chips">${INTERESTS.map((i, n) => `<button class="opt ${window.__int.includes(i) ? "on" : ""}" onclick="A.togInt(${n})">${esc(i)}</button>`).join("")}</div><button class="btn block mt16" onclick="A.saveInt()">Salvar</button>`);
+    window.__drawInt = draw; draw();
+  },
+  togInt(n) { const v = INTERESTS[n]; const a = window.__int; const i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); window.__drawInt(); },
+  saveInt() { S.profile.interests = window.__int.slice(); save(); closeSheet(); render(); },
+  redoPlacement() {
+    if (!CAP.sample) { toast(aiErr({code: "no_ai"})); return; }
+    OB = {step: 7, d: Object.assign({}, S.profile, {challenges: (S.profile.challenges || []).slice(), interests: (S.profile.interests || []).slice()}), place: {i: 0, ans: [], busy: false, result: null}};
+    view = "placement"; render();
+  },
+  placeDone() {
+    if (OB.place.result) { S.profile.level = OB.place.result.level; S.placement = {level: OB.place.result.level, date: today(), reason: OB.place.result.reason_pt || ""}; save(); toast("Nível atualizado: " + OB.place.result.level); }
+    go("profile");
+  },
+  invite() {
+    const text = `Estou treinando conversação em inglês com uma IA no Papo English 🇺🇸🗣️ Ela corrige na hora, em português, e dá nota de pronúncia palavra por palavra. Bora praticar junto? Me chama que eu te passo o link.`;
+    window.__inv = text;
+    sheet(`<h3>🎁 Convide um amigo</h3><p class="small muted mt8 mb12">Copie a mensagem e mande no WhatsApp junto com o link do app.</p><div class="card small">${esc(text)}</div><button class="btn block mt12" onclick="A.copyInv()">Copiar mensagem</button>`);
+  },
+  copyInv() { try { navigator.clipboard.writeText(window.__inv).then(() => toast("Copiado ✓"), () => toast("Não consegui copiar. Selecione o texto e copie manualmente.")); } catch (e) { toast("Não consegui copiar."); } },
+  async logout() { confirmBox("Sair da sua conta neste aparelho?", "Sair", async () => { stopSpeak(); await flushDb(); CH = null; await sb.auth.signOut(); }); },
+  async login() { const e = ($("#le").value || "").trim(), p = $("#lp").value; if (!e || !p) return lmsg("Preencha e-mail e senha.", 1); lmsg("Entrando…"); const {error} = await sb.auth.signInWithPassword({email: e, password: p}); if (error) lmsg(error.message === "Invalid login credentials" ? "E-mail ou senha incorretos." : error.message, 1); },
+  async signup() { const e = ($("#le").value || "").trim(), p = $("#lp").value; if (!e || !p) return lmsg("Preencha e-mail e uma senha.", 1); if (p.length < 6) return lmsg("A senha precisa ter pelo menos 6 caracteres.", 1); lmsg("Criando conta…"); const {data, error} = await sb.auth.signUp({email: e, password: p, options: {emailRedirectTo: baseURL()}}); if (error) return lmsg(error.message, 1); if (!data.session) lmsg("Conta criada! Confirme pelo link enviado ao seu e-mail e depois entre."); },
+  async forgot() { const e = ($("#le").value || "").trim(); if (!e) return lmsg("Digite seu e-mail acima.", 1); const {error} = await sb.auth.resetPasswordForEmail(e, {redirectTo: baseURL()}); lmsg(error ? error.message : "Enviamos um link para redefinir a senha.", !!error); },
+  async google() { lmsg("Abrindo o Google…"); const {error} = await sb.auth.signInWithOAuth({provider: "google", options: {redirectTo: baseURL(), queryParams: {prompt: "select_account"}}}); if (error) lmsg(error.message.includes("provider is not enabled") ? "Login com Google não está ativado." : error.message, 1); },
+  async newPass() { const p = $("#np").value; if (!p || p.length < 6) return lmsg("A senha precisa ter pelo menos 6 caracteres.", 1); const {error} = await sb.auth.updateUser({password: p}); if (error) return lmsg(error.message, 1); RECOVERY = false; toast("Senha alterada ✓"); setSession(SESSION); },
+  reset() { confirmBox("Apagar todo o progresso, vocabulário e histórico?", "Apagar tudo", () => { const keepName = S.profile.name; S = defState(); S.profile.name = keepName; OB = {step: 0, d: {name: keepName, goal: "", level: "", challenges: [], interests: [], dailyMin: 10, remind: "19:00"}, place: {i: 0, ans: [], busy: false, result: null}}; save(); flushDb(); go("onb"); }); }
+};
+window.A = A;
+
+/* nivelamento refeito pelo perfil reaproveita a tela do onboarding */
+VIEWS.placement = () => {
+  const html = obPlacement();
+  return html.replace(`onclick="A.obNext()">Usar`, `onclick="A.placeDone()">Usar`).replace(`onclick="A.obSkipPlace()"`, `onclick="A.go('profile')"`).replace(`onclick="A.obBack()"`, `onclick="A.go('profile')"`);
+};
+
+/* ---------- início ---------- */
+initCaps();
+render();
+if (!sb) { LOADING = false; SESSION = null; document.getElementById("screen").innerHTML = `<div class="banner warn" style="margin-top:40px">Não foi possível carregar o sistema de login. Verifique sua conexão e recarregue a página.</div>`; }
+else {
+  sb.auth.onAuthStateChange((ev, session) => {
+    if (ev === "PASSWORD_RECOVERY") { RECOVERY = true; SESSION = session; LOADING = false; render(); return; }
+    if (ev === "TOKEN_REFRESHED" || ev === "USER_UPDATED") { SESSION = session; return; }
+    setTimeout(() => setSession(session), 0);
+  });
+  sb.auth.getSession().then(({data}) => setSession(data && data.session)).catch(() => setSession(null));
+}
+</script>
+</body>
+</html>
