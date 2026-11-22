@@ -82,7 +82,8 @@ module.exports = async (req, res) => {
     const j = await r.json().catch(() => ({}));
     if (!r.ok) {
       const msg = (j && j.error && (j.error.message || j.error)) || ("HTTP " + r.status);
-      return send(res, r.status === 429 ? 429 : 502, {code: r.status === 429 ? "rate_limited" : "ai_error", error: String(msg).slice(0, 300)});
+      const setup = r.status === 401 || r.status === 403;
+      return send(res, r.status === 429 ? 429 : 502, {code: r.status === 429 ? "rate_limited" : (setup ? "ai_setup" : "ai_error"), error: String(msg).slice(0, 300)});
     }
     const text = (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "";
     return send(res, 200, {text});

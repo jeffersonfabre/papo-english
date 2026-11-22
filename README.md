@@ -3,7 +3,7 @@
 Tutor de conversação em inglês por voz, inspirado no Loora. **Grátis.**
 Arquivo único (`index.html`) + uma função na Vercel (`api/ai.js`).
 
-**Versão:** v1.1.1 · Desenvolvido por **DomDevLabs** · domdevlabs@gmail.com
+**Versão:** v1.1.2 · Desenvolvido por **DomDevLabs** · domdevlabs@gmail.com
 
 ## Funcionalidades
 - Primeiro acesso com objetivo, nível, dificuldades, interesses, **teste de nível falado** (CEFR), meta diária e horário de lembrete

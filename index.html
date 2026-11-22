@@ -237,7 +237,7 @@ ul.clean li::before{content:"✦";color:var(--accent);font-weight:800}
    Papo English — tutor de conversação em inglês com IA
    DomDevLabs · domdevlabs@gmail.com
    ============================================================ */
-const VERSION = "1.1.1";
+const VERSION = "1.1.2";
 const SB_URL = "https://hcyvrzjncsfrraadjmvf.supabase.co", SB_KEY = "sb_publishable_DAQltYQi-54Pn3WoNm4Myw_IBMJpUcC";
 const sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
 let SESSION = null, LOADING = true, loadedFor = null;
@@ -586,6 +586,7 @@ function aiErr(e) {
   const c = e && e.code;
   if (c === "rate_limited") return "Muitas mensagens seguidas. Espere alguns segundos e tente de novo.";
   if (c === "no_ai" || c === "no_session") return "Entre na sua conta para conversar com a IA.";
+  if (c === "ai_setup") return "A IA do app ainda não foi ativada pelo administrador. Tente de novo mais tarde.";
   if (c === "daily_limit") return "Você atingiu o limite diário de mensagens da IA. Volte amanhã!";
   if (c === "offline") return "Sem conexão com a internet. Tente de novo.";
   return "Não consegui responder agora. Toque para tentar de novo.";
