@@ -3,7 +3,7 @@
 Tutor de conversação em inglês por voz, inspirado no Loora. **Grátis.**
 Arquivo único (`index.html`) + uma função na Vercel (`api/ai.js`).
 
-**Versão:** v1.1.0 · Desenvolvido por **DomDevLabs** · domdevlabs@gmail.com
+**Versão:** v1.1.1 · Desenvolvido por **DomDevLabs** · domdevlabs@gmail.com
 
 ## Funcionalidades
 - Primeiro acesso com objetivo, nível, dificuldades, interesses, **teste de nível falado** (CEFR), meta diária e horário de lembrete
@@ -19,8 +19,11 @@ Arquivo único (`index.html`) + uma função na Vercel (`api/ai.js`).
 ## Como funciona
 - **Login**: Supabase Auth (Google ou e-mail e senha)
 - **Banco**: projeto Supabase **Araleo Fragrances**, mas **independente** — usa só `papo_estado`, `papo_uso` e a função `papo_registrar_uso()`. Script em [`supabase/001_papo_english.sql`](supabase/001_papo_english.sql)
-- **IA**: `api/ai.js` valida o login, conta o uso (limite diário por usuário, `PAPO_DAILY_LIMIT`, padrão 400) e chama `openai/gpt-4.1-mini` pelo **Vercel AI Gateway** (sem chave: usa o OIDC da Vercel). Troque o modelo com `PAPO_MODEL`
+- **IA**: com `GEMINI_API_KEY` (chave grátis do Google AI Studio, sem cartão) usa o Gemini (`GEMINI_MODEL`, padrão `gemini-2.5-flash`); sem ela usa o Vercel AI Gateway. `api/ai.js` valida o login, conta o uso (limite diário por usuário, `PAPO_DAILY_LIMIT`, padrão 400) e chama `openai/gpt-4.1-mini` pelo **Vercel AI Gateway** (sem chave: usa o OIDC da Vercel). Troque o modelo com `PAPO_MODEL`
 - **Microfone e voz**: do próprio navegador (Web Speech API). Reconhecimento de voz no Chrome (Android/PC), Safari (iPhone/Mac) e Edge
+
+## Diagnóstico
+`/api/health` mostra qual IA está configurada e se ela responde.
 
 ## Publicação
 Vercel (projeto `papo-english`). Depois, no Supabase: Authentication → URL Configuration →

@@ -7,6 +7,10 @@ const SB_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || "sb_publishable_DAQltYQi-
 const MODEL = process.env.PAPO_MODEL || "openai/gpt-4.1-mini";
 const DAILY_LIMIT = parseInt(process.env.PAPO_DAILY_LIMIT || "400", 10);
 const GATEWAY = "https://ai-gateway.vercel.sh/v1/chat/completions";
+// Alternativa sem cartão: chave grátis do Google AI Studio (Gemini), endpoint compatível com OpenAI
+const GEMINI_KEY = process.env.GEMINI_API_KEY || "";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 
 function send(res, status, body) {
   res.statusCode = status;
@@ -55,20 +59,22 @@ module.exports = async (req, res) => {
     return send(res, 500, {code: "error", error: "Falha ao validar login"});
   }
 
-  // 2) chama o modelo pelo AI Gateway
-  const token = process.env.AI_GATEWAY_API_KEY || req.headers["x-vercel-oidc-token"] || process.env.VERCEL_OIDC_TOKEN;
-  if (!token) return send(res, 500, {code: "error", error: "AI Gateway sem credencial"});
+  // 2) chama o modelo: Gemini (se houver GEMINI_API_KEY) ou Vercel AI Gateway
+  const useGemini = !!GEMINI_KEY;
+  const token = useGemini ? GEMINI_KEY : (process.env.AI_GATEWAY_API_KEY || req.headers["x-vercel-oidc-token"] || process.env.VERCEL_OIDC_TOKEN);
+  if (!token) return send(res, 500, {code: "error", error: "IA sem credencial"});
 
   const payload = {
-    model: MODEL,
+    model: useGemini ? GEMINI_MODEL : MODEL,
     messages,
     max_tokens: json ? (task === "summary" ? 1400 : 900) : 350,
     temperature: json ? 0.3 : 0.8
   };
   if (json) payload.response_format = {type: "json_object"};
+  if (useGemini) payload.reasoning_effort = "none";
 
   try {
-    const r = await fetch(GATEWAY, {
+    const r = await fetch(useGemini ? GEMINI_URL : GATEWAY, {
       method: "POST",
       headers: {Authorization: "Bearer " + token, "Content-Type": "application/json"},
       body: JSON.stringify(payload)
